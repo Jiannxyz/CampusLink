@@ -1,4 +1,5 @@
 import math
+from collections import defaultdict
 
 from flask import (
     Blueprint,
@@ -12,6 +13,7 @@ from flask import (
 )
 
 from utils.auth_helpers import login_required
+from utils.comment_validation import validate_comment_content
 from utils.db import db_cursor
 from utils.post_validation import validate_post_form
 
@@ -96,6 +98,331 @@ def _feed_url(page, school_id=None):
     return url_for("posts.feed", **args)
 
 
+def _fetch_post_if_visible(post_id, viewer):
+    vis_sql, vis_params = _visibility_sql_and_params(viewer)
+    with db_cursor() as pair:
+        if pair is None:
+            return None
+        conn, cur = pair
+        cur.execute(
+            f"""
+            SELECT
+                p.post_id,
+                p.user_id,
+                p.school_id,
+                p.title
+            FROM posts p
+            WHERE p.post_id = %s AND {vis_sql}
+            """,
+            (post_id, *vis_params),
+        )
+        return cur.fetchone()
+
+
+def _enrich_posts_with_social(rows, viewer):
+    if not rows:
+        return rows
+    post_ids = [int(r["post_id"]) for r in rows]
+    placeholders = ",".join(["%s"] * len(post_ids))
+    uid = int(viewer["user_id"]) if viewer else None
+
+    with db_cursor() as pair:
+        if pair is None:
+            for r in rows:
+                r["like_count"] = 0
+                r["user_has_liked"] = False
+                r["comments"] = []
+            return rows
+        conn, cur = pair
+
+        cur.execute(
+            f"""
+            SELECT target_id AS post_id, COUNT(*) AS cnt
+            FROM reactions
+            WHERE target_type = 'post'
+              AND reaction_type = 'like'
+              AND target_id IN ({placeholders})
+            GROUP BY target_id
+            """,
+            tuple(post_ids),
+        )
+        likes_map = {int(row["post_id"]): int(row["cnt"]) for row in cur.fetchall()}
+
+        user_liked = set()
+        if uid is not None:
+            cur.execute(
+                f"""
+                SELECT target_id
+                FROM reactions
+                WHERE user_id = %s
+                  AND target_type = 'post'
+                  AND reaction_type = 'like'
+                  AND target_id IN ({placeholders})
+                """,
+                (uid, *post_ids),
+            )
+            user_liked = {int(row["target_id"]) for row in cur.fetchall()}
+
+        cur.execute(
+            f"""
+            SELECT
+                c.comment_id,
+                c.post_id,
+                c.user_id,
+                c.parent_comment_id,
+                c.content,
+                c.created_at,
+                u.username,
+                u.first_name,
+                u.last_name
+            FROM comments c
+            INNER JOIN users u ON u.user_id = c.user_id
+            WHERE c.post_id IN ({placeholders})
+              AND c.parent_comment_id IS NULL
+            ORDER BY c.post_id ASC, c.created_at ASC
+            """,
+            tuple(post_ids),
+        )
+        comment_rows = cur.fetchall()
+
+        cur.execute(
+            f"""
+            SELECT
+                c.comment_id,
+                c.post_id,
+                c.user_id,
+                c.parent_comment_id,
+                c.content,
+                c.created_at,
+                u.username,
+                u.first_name,
+                u.last_name
+            FROM comments c
+            INNER JOIN users u ON u.user_id = c.user_id
+            WHERE c.post_id IN ({placeholders})
+              AND c.parent_comment_id IS NOT NULL
+            ORDER BY c.post_id ASC, c.parent_comment_id ASC, c.created_at ASC
+            """,
+            tuple(post_ids),
+        )
+        reply_rows = cur.fetchall()
+
+    replies_by_parent = defaultdict(list)
+    for c in reply_rows:
+        replies_by_parent[int(c["parent_comment_id"])].append(c)
+
+    by_post = defaultdict(list)
+    for c in comment_rows:
+        cid = int(c["comment_id"])
+        c["replies"] = replies_by_parent.get(cid, [])
+        by_post[int(c["post_id"])].append(c)
+
+    for r in rows:
+        pid = int(r["post_id"])
+        r["like_count"] = likes_map.get(pid, 0)
+        r["user_has_liked"] = pid in user_liked if uid is not None else False
+        r["comments"] = by_post.get(pid, [])
+    return rows
+
+
+def _redirect_feed():
+    try:
+        page = max(1, int(request.form.get("redirect_page", 1)))
+    except (TypeError, ValueError):
+        page = 1
+    raw_school = request.form.get("redirect_school_id", "").strip()
+    school_id = None
+    if raw_school:
+        try:
+            school_id = int(raw_school)
+        except ValueError:
+            school_id = None
+    return redirect(_feed_url(page, school_id))
+
+
+def _can_delete_comment(comment_row):
+    user = g.current_user
+    if not user or not comment_row:
+        return False
+    if user.get("role") == "admin":
+        return True
+    return int(comment_row["user_id"]) == int(user["user_id"])
+
+
+def _fetch_comment(comment_id):
+    with db_cursor() as pair:
+        if pair is None:
+            return None
+        conn, cur = pair
+        cur.execute(
+            """
+            SELECT comment_id, post_id, user_id, content, parent_comment_id
+            FROM comments
+            WHERE comment_id = %s
+            """,
+            (comment_id,),
+        )
+        return cur.fetchone()
+
+
+@posts_bp.route("/posts/<int:post_id>/comment", methods=["POST"])
+@login_required
+def add_comment(post_id):
+    post = _fetch_post_if_visible(post_id, g.current_user)
+    if not post:
+        flash("You cannot comment on this post.", "danger")
+        return redirect(url_for("posts.feed"))
+
+    content = request.form.get("content", "")
+    err = validate_comment_content(content)
+    if err:
+        flash(err, "danger")
+        return _redirect_feed()
+
+    parent_raw = request.form.get("parent_comment_id", "").strip()
+    parent_id = None
+    if parent_raw:
+        try:
+            parent_id = int(parent_raw)
+        except ValueError:
+            parent_id = None
+        if parent_id:
+            with db_cursor() as pair:
+                if pair is None:
+                    flash("Cannot reach the database.", "danger")
+                    return _redirect_feed()
+                conn, cur = pair
+                cur.execute(
+                    """
+                    SELECT comment_id FROM comments
+                    WHERE comment_id = %s AND post_id = %s
+                    """,
+                    (parent_id, post_id),
+                )
+                if cur.fetchone() is None:
+                    flash("Invalid reply target.", "danger")
+                    return _redirect_feed()
+
+    uid = int(g.current_user["user_id"])
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return _redirect_feed()
+        conn, cur = pair
+        cur.execute(
+            """
+            INSERT INTO comments (post_id, user_id, parent_comment_id, content, is_edited)
+            VALUES (%s, %s, %s, %s, 0)
+            """,
+            (post_id, uid, parent_id, content.strip()),
+        )
+        conn.commit()
+
+    flash("Comment added.", "success")
+    return _redirect_feed()
+
+
+@posts_bp.route("/comments/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    row = _fetch_comment(comment_id)
+    if not row:
+        flash("Comment not found.", "warning")
+        return _redirect_feed()
+
+    post = _fetch_post_if_visible(int(row["post_id"]), g.current_user)
+    if not post:
+        flash("You cannot modify this thread.", "danger")
+        return _redirect_feed()
+
+    if not _can_delete_comment(row):
+        flash("You cannot delete this comment.", "danger")
+        return _redirect_feed()
+
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return _redirect_feed()
+        conn, cur = pair
+        cur.execute(
+            "SELECT comment_id FROM comments WHERE parent_comment_id = %s",
+            (comment_id,),
+        )
+        child_ids = [int(r["comment_id"]) for r in cur.fetchall()]
+        all_comment_ids = [comment_id] + child_ids
+        placeholders = ",".join(["%s"] * len(all_comment_ids))
+        cur.execute(
+            f"""
+            DELETE FROM reactions
+            WHERE target_type = 'comment' AND target_id IN ({placeholders})
+            """,
+            tuple(all_comment_ids),
+        )
+        cur.execute(
+            """
+            DELETE FROM comments
+            WHERE comment_id = %s OR parent_comment_id = %s
+            """,
+            (comment_id, comment_id),
+        )
+        conn.commit()
+
+    flash("Comment removed.", "info")
+    return _redirect_feed()
+
+
+@posts_bp.route("/posts/<int:post_id>/react", methods=["POST"])
+@login_required
+def toggle_post_like(post_id):
+    post = _fetch_post_if_visible(post_id, g.current_user)
+    if not post:
+        flash("You cannot react to this post.", "danger")
+        return _redirect_feed()
+
+    uid = int(g.current_user["user_id"])
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return _redirect_feed()
+        conn, cur = pair
+        cur.execute(
+            """
+            SELECT reaction_id, reaction_type
+            FROM reactions
+            WHERE user_id = %s AND target_type = 'post' AND target_id = %s
+            """,
+            (uid, post_id),
+        )
+        existing = cur.fetchone()
+
+        if existing and existing.get("reaction_type") == "like":
+            cur.execute(
+                "DELETE FROM reactions WHERE reaction_id = %s",
+                (existing["reaction_id"],),
+            )
+        else:
+            if existing:
+                cur.execute(
+                    """
+                    UPDATE reactions
+                    SET reaction_type = 'like'
+                    WHERE reaction_id = %s
+                    """,
+                    (existing["reaction_id"],),
+                )
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO reactions (user_id, target_type, target_id, reaction_type)
+                    VALUES (%s, 'post', %s, 'like')
+                    """,
+                    (uid, post_id),
+                )
+        conn.commit()
+
+    return _redirect_feed()
+
+
 @posts_bp.route("/feed")
 def feed():
     per_page = current_app.config.get("POSTS_PER_PAGE", 10)
@@ -161,6 +488,9 @@ def feed():
 
         cur.execute(list_sql, tuple(params + [per_page, offset]))
         rows = cur.fetchall()
+
+    viewer = getattr(g, "current_user", None)
+    rows = _enrich_posts_with_social(rows, viewer)
 
     pagination = {
         "page": page,

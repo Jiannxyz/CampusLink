@@ -42,6 +42,7 @@ If your database predates **post** columns `title`, `image_path`, and `category`
 - **Feed** (`/feed`): paginated posts with optional **school filter**. Guests see **public** posts only; signed-in users also see **school-only** posts for their school and their own **private** / **followers-only** posts (followers-only is author-only until follow-based sharing is implemented).
 - **Create / edit / delete** (`/posts/new`, `/posts/<id>/edit`, POST delete): requires sign-in; **authors** and **admins** can edit or delete.
 - Configure page size with `POSTS_PER_PAGE` in `.env` (default 10).
+- **Comments & likes**: on the feed, signed-in users can **comment**, **reply** to a comment (threaded via `parent_comment_id`), **delete** their own comments (admins: any), and **toggle a like** on posts (`reactions` with `reaction_type = 'like'`). Counts come from MySQL; forms POST back to the same feed page (optional AJAX can be added later).
 
 ## Run Locally
 

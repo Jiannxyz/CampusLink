@@ -1,0 +1,97 @@
+{# Social strip: likes, comments. Expects: post, pagination, school_filter #}
+{% set rp = pagination.page if pagination else 1 %}
+{% set rs = school_filter if school_filter is not none else '' %}
+
+<div class="border-top mt-3 pt-3">
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+        {% if current_user %}
+        <form method="post" action="{{ url_for('posts.toggle_post_like', post_id=post.post_id) }}" class="d-inline">
+            <input type="hidden" name="redirect_page" value="{{ rp }}">
+            <input type="hidden" name="redirect_school_id" value="{{ rs }}">
+            <button type="submit" class="btn btn-sm {% if post.user_has_liked %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill">
+                {% if post.user_has_liked %}Unlike{% else %}Like{% endif %}
+                <span class="badge {% if post.user_has_liked %}text-bg-light{% else %}text-bg-primary{% endif %} ms-1">{{ post.like_count }}</span>
+            </button>
+        </form>
+        {% else %}
+        <span class="btn btn-sm btn-outline-secondary rounded-pill disabled" aria-disabled="true">
+            Likes <span class="badge text-bg-secondary ms-1">{{ post.like_count }}</span>
+        </span>
+        <span class="small text-muted">Sign in to react.</span>
+        {% endif %}
+    </div>
+
+    {% if post.comments %}
+    <div class="list-group list-group-flush small mb-3 border rounded overflow-hidden">
+        {% for c in post.comments %}
+        <div class="list-group-item bg-light bg-opacity-25 px-3 py-2">
+            <div class="d-flex justify-content-between gap-2 flex-wrap">
+                <div>
+                    <strong>@{{ c.username }}</strong>
+                    <span class="text-muted">· <time {% if c.created_at %}datetime="{{ c.created_at.isoformat() }}"{% endif %}>{{ c.created_at }}</time></span>
+                </div>
+                {% if current_user and (current_user.user_id|int == c.user_id|int or current_user.role == 'admin') %}
+                <form method="post" action="{{ url_for('posts.delete_comment', comment_id=c.comment_id) }}" class="d-inline" onsubmit="return confirm('Delete this comment?');">
+                    <input type="hidden" name="redirect_page" value="{{ rp }}">
+                    <input type="hidden" name="redirect_school_id" value="{{ rs }}">
+                    <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            <p class="mb-2 mt-1 mb-0" style="white-space: pre-wrap;">{{ c.content }}</p>
+            {% if c.replies %}
+            <div class="ms-2 ps-2 border-start border-2 mt-2">
+                {% for r in c.replies %}
+                <div class="mb-2 pb-2 {% if not loop.last %}border-bottom border-light{% endif %}">
+                    <div class="d-flex justify-content-between gap-2 flex-wrap">
+                        <div>
+                            <strong class="small">@{{ r.username }}</strong>
+                            <span class="text-muted small">· <time {% if r.created_at %}datetime="{{ r.created_at.isoformat() }}"{% endif %}>{{ r.created_at }}</time></span>
+                        </div>
+                        {% if current_user and (current_user.user_id|int == r.user_id|int or current_user.role == 'admin') %}
+                        <form method="post" action="{{ url_for('posts.delete_comment', comment_id=r.comment_id) }}" class="d-inline" onsubmit="return confirm('Delete this reply?');">
+                            <input type="hidden" name="redirect_page" value="{{ rp }}">
+                            <input type="hidden" name="redirect_school_id" value="{{ rs }}">
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p class="small mb-0 mt-1" style="white-space: pre-wrap;">{{ r.content }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if current_user %}
+            <details class="mt-2">
+                <summary class="small text-primary" style="cursor:pointer;">Reply</summary>
+                <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="mt-2">
+                    <input type="hidden" name="redirect_page" value="{{ rp }}">
+                    <input type="hidden" name="redirect_school_id" value="{{ rs }}">
+                    <input type="hidden" name="parent_comment_id" value="{{ c.comment_id }}">
+                    <label class="visually-hidden" for="reply-{{ c.comment_id }}">Reply</label>
+                    <textarea class="form-control form-control-sm" id="reply-{{ c.comment_id }}" name="content" rows="2" maxlength="2000" required placeholder="Write a reply…"></textarea>
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Post reply</button>
+                </form>
+            </details>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if current_user %}
+    <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="row g-2 align-items-end">
+        <input type="hidden" name="redirect_page" value="{{ rp }}">
+        <input type="hidden" name="redirect_school_id" value="{{ rs }}">
+        <div class="col-12">
+            <label for="comment-{{ post.post_id }}" class="form-label small text-muted mb-0">Add a comment</label>
+            <textarea class="form-control" id="comment-{{ post.post_id }}" name="content" rows="2" maxlength="2000" required placeholder="Share your thoughts…"></textarea>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-outline-primary">Comment</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="small text-muted mb-0"><a href="{{ url_for('auth.login', next=url_for('posts.feed')) }}">Sign in</a> to comment or like.</p>
+    {% endif %}
+</div>

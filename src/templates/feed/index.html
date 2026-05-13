@@ -61,6 +61,7 @@
             </div>
             {% endif %}
             <p class="card-text mb-0" style="white-space: pre-wrap;">{{ post.content }}</p>
+            {% include "feed/_post_social.html" %}
             {% if current_user and (current_user.user_id|int == post.user_id|int or current_user.role == 'admin') %}
             <div class="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
                 <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('posts.edit_post', post_id=post.post_id) }}">Edit</a>
