@@ -32,9 +32,34 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Password hashes generated with:
 -- werkzeug.security.generate_password_hash(..., method='pbkdf2:sha256')
 
-INSERT INTO schools (school_code, name, email_domain, city, country, status) VALUES
-('STATE-U', 'State University', 'stateu.edu', 'Springfield', 'USA', 'active'),
-('TECH-COLLEGE', 'Tech College', 'techcollege.edu', 'Metro City', 'USA', 'active');
+INSERT INTO schools (
+    school_code, name, campus, email_domain, city, province, country,
+    description, logo_path, status
+) VALUES
+(
+    'STATE-U',
+    'State University',
+    'Main Campus',
+    'stateu.edu',
+    'Springfield',
+    'Midwest',
+    'USA',
+    'Flagship public research university with strong engineering and liberal arts programs.',
+    'uploads/schools/state-u-placeholder.svg',
+    'active'
+),
+(
+    'TECH-COLLEGE',
+    'Tech College',
+    'Downtown Campus',
+    'techcollege.edu',
+    'Metro City',
+    'Coastal',
+    'USA',
+    'Career-focused technical college serving the metro region.',
+    'uploads/schools/tech-college-placeholder.svg',
+    'active'
+);
 
 INSERT INTO users (
     school_id, username, email, password_hash,

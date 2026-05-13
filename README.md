@@ -21,6 +21,17 @@ Seed accounts (after `initial_data.sql`):
 - Admin: username `admin_alice`, password `AdminCampus123!`
 - Student: username `bob_student` (or `carol_student`, `dave_student`), password `CampusLink123!`
 
+## School management (admin)
+
+Admins can manage schools at **Schools** in the navbar (`/schools`): list, detail, create, edit, and delete.
+
+Deleting a school is blocked while **users** still reference it (`users.school_id` is `RESTRICT`). Other tables that reference schools may also prevent delete; in that case MySQL returns an error and a flash message is shown.
+
+If your database was created from an older `schema.sql` without `campus`, `province`, `description`, or `logo_path`, run:
+
+- `mysql -u root -p < database/migrations/001_schools_extended_fields.sql`  
+  (edit the `USE …` line in that file to match your database name first.)
+
 ## Run Locally
 
 1. Create and activate a virtual environment.

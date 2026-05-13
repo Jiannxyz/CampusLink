@@ -1,0 +1,58 @@
+{# Reusable school form fields. Expects `values` mapping with all SCHOOL_FORM_KEYS. #}
+<div class="row g-3">
+    <div class="col-md-6">
+        <label for="name" class="form-label">School name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="name" name="name" required maxlength="150"
+               value="{{ values.name }}">
+    </div>
+    <div class="col-md-6">
+        <label for="campus" class="form-label">Campus</label>
+        <input type="text" class="form-control" id="campus" name="campus" maxlength="150"
+               value="{{ values.campus }}" placeholder="e.g. Main Campus">
+    </div>
+    <div class="col-md-6">
+        <label for="school_code" class="form-label">School code <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="school_code" name="school_code" required
+               minlength="2" maxlength="30" pattern="[a-zA-Z0-9_-]+"
+               value="{{ values.school_code }}" title="Letters, numbers, hyphens, underscores">
+        <div class="form-text">Short unique code (used internally).</div>
+    </div>
+    <div class="col-md-6">
+        <label for="email_domain" class="form-label">Email domain <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="email_domain" name="email_domain" required maxlength="120"
+               value="{{ values.email_domain }}" placeholder="stateu.edu" autocomplete="off">
+        <div class="form-text">Registration emails should match this domain when verified.</div>
+    </div>
+    <div class="col-md-4">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city" name="city" maxlength="100" value="{{ values.city }}">
+    </div>
+    <div class="col-md-4">
+        <label for="province" class="form-label">Province / state</label>
+        <input type="text" class="form-control" id="province" name="province" maxlength="100"
+               value="{{ values.province }}">
+    </div>
+    <div class="col-md-4">
+        <label for="country" class="form-label">Country</label>
+        <input type="text" class="form-control" id="country" name="country" maxlength="100"
+               value="{{ values.country }}">
+    </div>
+    <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4" maxlength="10000">{{ values.description }}</textarea>
+    </div>
+    <div class="col-12">
+        <label for="logo_path" class="form-label">Logo path or URL</label>
+        <input type="text" class="form-control" id="logo_path" name="logo_path" maxlength="500"
+               value="{{ values.logo_path }}"
+               placeholder="uploads/schools/logo.svg or https://example.com/logo.png">
+        <div class="form-text">Relative path under the <code>static</code> folder, or a full <code>http(s)</code> URL.</div>
+    </div>
+    <div class="col-md-6">
+        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+        <select class="form-select" id="status" name="status" required>
+            <option value="active" {% if values.status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if values.status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+</div>
