@@ -1,0 +1,83 @@
+{# Shared event form. Pass `form` (POST error) or `event` (edit defaults). #}
+{% macro field_val(name, default='') -%}
+    {%- if form is defined and form is not none -%}
+        {{ form.get(name, default) }}
+    {%- elif event is defined and event is not none -%}
+        {%- if name == 'title' -%}{{ event.title or '' }}
+        {%- elif name == 'description' -%}{{ event.description or '' }}
+        {%- elif name == 'venue' -%}{{ event.location or '' }}
+        {%- elif name == 'starts_at' and event.starts_at -%}{{ event.starts_at.strftime('%Y-%m-%dT%H:%M') }}
+        {%- elif name == 'ends_at' and event.ends_at -%}{{ event.ends_at.strftime('%Y-%m-%dT%H:%M') }}
+        {%- elif name == 'visibility' -%}{{ event.visibility }}
+        {%- elif name == 'event_status' -%}{{ event.event_status }}
+        {%- elif name == 'capacity' -%}{{ event.capacity if event.capacity is not none else '' }}
+        {%- elif name == 'organization_id' -%}{{ event.organization_id or '' }}
+        {%- elif name == 'school_id' -%}{{ event.school_id }}
+        {%- else -%}{{ default }}{%- endif -%}
+    {%- else -%}{{ default }}{%- endif -%}
+{%- endmacro %}
+
+<div class="row g-3">
+    <div class="col-12">
+        <label for="title" class="form-label">Event title <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="title" name="title" required maxlength="180"
+               value="{{ field_val('title') }}">
+    </div>
+    {% if schools %}
+    <div class="col-md-6">
+        <label for="school_id" class="form-label">School <span class="text-danger">*</span></label>
+        <select class="form-select" id="school_id" name="school_id" required>
+            {% for s in schools %}
+            <option value="{{ s.school_id }}" {% if field_val('school_id')|string == s.school_id|string %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    <div class="col-md-6">
+        <label for="organization_id" class="form-label">Organization ID <span class="text-muted small">(optional)</span></label>
+        <input type="number" class="form-control" id="organization_id" name="organization_id" min="1"
+               value="{{ field_val('organization_id') }}" placeholder="Leave blank if none">
+    </div>
+    <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4" maxlength="50000">{{ field_val('description') }}</textarea>
+    </div>
+    <div class="col-12">
+        <label for="venue" class="form-label">Venue</label>
+        <input type="text" class="form-control" id="venue" name="venue" maxlength="200"
+               value="{{ field_val('venue') }}" placeholder="Building, room, or address">
+    </div>
+    <div class="col-md-6">
+        <label for="starts_at" class="form-label">Starts <span class="text-danger">*</span></label>
+        <input type="datetime-local" class="form-control" id="starts_at" name="starts_at" required
+               value="{{ field_val('starts_at') }}">
+    </div>
+    <div class="col-md-6">
+        <label for="ends_at" class="form-label">Ends <span class="text-muted small">(optional)</span></label>
+        <input type="datetime-local" class="form-control" id="ends_at" name="ends_at"
+               value="{{ field_val('ends_at') }}">
+        <div class="form-text">End must be on or after start.</div>
+    </div>
+    <div class="col-md-4">
+        <label for="visibility" class="form-label">Visibility</label>
+        <select class="form-select" id="visibility" name="visibility">
+            <option value="public" {% if field_val('visibility', 'school_only') == 'public' %}selected{% endif %}>Public</option>
+            <option value="school_only" {% if field_val('visibility', 'school_only') == 'school_only' %}selected{% endif %}>School only</option>
+            <option value="organization_only" {% if field_val('visibility', 'school_only') == 'organization_only' %}selected{% endif %}>Organization only</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="event_status" class="form-label">Status</label>
+        <select class="form-select" id="event_status" name="event_status">
+            <option value="draft" {% if field_val('event_status', 'draft') == 'draft' %}selected{% endif %}>Draft</option>
+            <option value="published" {% if field_val('event_status', 'draft') == 'published' %}selected{% endif %}>Published</option>
+            <option value="cancelled" {% if field_val('event_status', 'draft') == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            <option value="completed" {% if field_val('event_status', 'draft') == 'completed' %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="capacity" class="form-label">Capacity</label>
+        <input type="number" class="form-control" id="capacity" name="capacity" min="1" max="100000"
+               value="{{ field_val('capacity') }}" placeholder="Unlimited if empty">
+    </div>
+</div>

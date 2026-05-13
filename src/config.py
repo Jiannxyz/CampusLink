@@ -25,3 +25,4 @@ class Config:
     )
 
     POSTS_PER_PAGE = int(os.getenv("POSTS_PER_PAGE", 10))
+    EVENTS_PER_PAGE = int(os.getenv("EVENTS_PER_PAGE", 12))

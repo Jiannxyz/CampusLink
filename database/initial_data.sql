@@ -14,6 +14,7 @@ DELETE FROM reactions;
 DELETE FROM comments;
 DELETE FROM posts;
 DELETE FROM follows;
+DELETE FROM event_rsvps;
 DELETE FROM events;
 DELETE FROM organizations;
 DELETE FROM users;
@@ -199,6 +200,11 @@ INSERT INTO events (
     'published',
     25
 );
+
+INSERT INTO event_rsvps (event_id, user_id, status) VALUES
+(1, 2, 'going'),
+(1, 3, 'going'),
+(2, 1, 'going');
 
 INSERT INTO follows (follower_user_id, following_user_id, follow_status) VALUES
 (2, 3, 'accepted'),

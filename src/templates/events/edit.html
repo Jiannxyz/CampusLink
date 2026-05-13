@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ event.title }} | CampusLink{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('events.upcoming') }}">Events</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('events.event_detail', event_id=event.event_id) }}">{{ event.title }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+</nav>
+
+<h1 class="h3 mb-4">Edit event</h1>
+{% if not schools %}
+<p class="small text-muted mb-3">School: <strong>{{ event.school_name }}</strong> (only admins can move events between schools.)</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('events.edit_event', event_id=event.event_id) }}" novalidate class="col-xl-9">
+    {% include "events/_form_fields.html" %}
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('events.event_detail', event_id=event.event_id) }}">Cancel</a>
+    </div>
+</form>
+{% endblock %}

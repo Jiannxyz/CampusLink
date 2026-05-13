@@ -37,12 +37,24 @@ If your database predates **post** columns `title`, `image_path`, and `category`
 - `mysql -u root -p < database/migrations/002_posts_social_fields.sql`  
   (edit the `USE …` line first.)
 
+If **`event_rsvps`** is missing (needed for RSVPs), run:
+
+- `mysql -u root -p < database/migrations/003_event_rsvps.sql`  
+  (edit the `USE …` line first.)
+
 ## Campus feed & posts
 
 - **Feed** (`/feed`): paginated posts with optional **school filter**. Guests see **public** posts only; signed-in users also see **school-only** posts for their school and their own **private** / **followers-only** posts (followers-only is author-only until follow-based sharing is implemented).
 - **Create / edit / delete** (`/posts/new`, `/posts/<id>/edit`, POST delete): requires sign-in; **authors** and **admins** can edit or delete.
 - Configure page size with `POSTS_PER_PAGE` in `.env` (default 10).
 - **Comments & likes**: on the feed, signed-in users can **comment**, **reply** to a comment (threaded via `parent_comment_id`), **delete** their own comments (admins: any), and **toggle a like** on posts (`reactions` with `reaction_type = 'like'`). Counts come from MySQL; forms POST back to the same feed page (optional AJAX can be added later).
+
+## Events
+
+- **Upcoming** (`/events/upcoming`): responsive **event cards**, pagination (`EVENTS_PER_PAGE` in `.env`, default 12). Guests see **public** published events; signed-in users also see **school-only** and **organization-only** events for their school.
+- **Create / edit / delete** (`/events/new`, `/events/<id>/edit`, POST delete): signed-in users create events for **their school**; **admins** pick any school. **Organizer** (creator) or **admin** may edit or delete.
+- **RSVP** (`POST /events/<id>/rsvp`): join (or **waitlist** if at capacity), or leave. Attendee counts use the **`event_rsvps`** table (`ON DELETE CASCADE` from events).
+- **Validation**: `utils/event_validation.py` checks title/lengths, **end ≥ start**, and **future start** when first publishing.
 
 ## Run Locally
 

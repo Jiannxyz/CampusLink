@@ -3,6 +3,7 @@ from flask import Flask, render_template
 from config import Config
 from routes.admin import admin_bp
 from routes.auth import auth_bp
+from routes.events import events_bp
 from routes.main import main_bp
 from routes.posts import posts_bp
 from routes.schools import schools_bp
@@ -19,6 +20,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(schools_bp)
     app.register_blueprint(posts_bp)
+    app.register_blueprint(events_bp)
     app.register_blueprint(main_bp)
 
     @app.errorhandler(404)
