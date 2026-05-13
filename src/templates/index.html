@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Home | CampusLink{% endblock %}
+
+{% block content %}
+<div class="p-4 p-md-5 mb-4 bg-light rounded-3 border">
+    <div class="container-fluid py-3">
+        <h1 class="display-6 fw-bold">Welcome to CampusLink</h1>
+        <p class="col-md-8 fs-5 text-muted">
+            A beginner-friendly Flask starter for campus projects, with clean structure and MySQL support.
+        </p>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('main.about') }}">Learn More</a>
+    </div>
+</div>
+{% endblock %}
