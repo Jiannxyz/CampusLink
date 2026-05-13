@@ -56,6 +56,12 @@ If **`event_rsvps`** is missing (needed for RSVPs), run:
 - **RSVP** (`POST /events/<id>/rsvp`): join (or **waitlist** if at capacity), or leave. Attendee counts use the **`event_rsvps`** table (`ON DELETE CASCADE` from events).
 - **Validation**: `utils/event_validation.py` checks title/lengths, **end ≥ start**, and **future start** when first publishing.
 
+## Search
+
+- **Search** (`/search`): keyword search (SQL `LIKE`, escaped wildcards) across **schools**, **users** (signed-in; same school for non-admins), **posts** (same visibility rules as the feed), and **events** (published + same visibility as the events list; **event status** filter for admins only).
+- Filters: **school**, **post category**, **user role**, optional **event status** (admins). **Scope** `all` shows a short preview per type; a single scope uses pagination (`SEARCH_PER_PAGE`, `SEARCH_PREVIEW` in `.env`).
+- Helpers: `utils/search_helpers.py` (`sanitize_keyword`, `like_contains`, `pagination_dict`, visibility snippets).
+
 ## Run Locally
 
 1. Create and activate a virtual environment.

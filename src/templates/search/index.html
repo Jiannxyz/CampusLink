@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Search | CampusLink{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Search CampusLink</h1>
+
+<form method="get" action="{{ url_for('search.search') }}" class="card border-0 shadow-sm mb-4" role="search">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-4">
+                <label for="q" class="form-label">Keywords</label>
+                <div class="input-group">
+                    <span class="input-group-text" aria-hidden="true">⌕</span>
+                    <input type="search" class="form-control" id="q" name="q" value="{{ q }}"
+                           placeholder="Search schools, people, posts, events…" minlength="2" maxlength="100" autocomplete="off">
+                </div>
+                <div class="form-text">At least 2 characters. SQL <code>LIKE</code> on titles, names, descriptions, and post bodies.</div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="type" class="form-label">Scope</label>
+                <select class="form-select" id="type" name="type">
+                    <option value="all" {% if scope == 'all' %}selected{% endif %}>All types</option>
+                    <option value="schools" {% if scope == 'schools' %}selected{% endif %}>Schools</option>
+                    <option value="users" {% if scope == 'users' %}selected{% endif %}>Users</option>
+                    <option value="posts" {% if scope == 'posts' %}selected{% endif %}>Posts</option>
+                    <option value="events" {% if scope == 'events' %}selected{% endif %}>Events</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="school_id" class="form-label">School filter</label>
+                <select class="form-select" id="school_id" name="school_id">
+                    <option value="">Any school</option>
+                    {% for s in schools_filter %}
+                    <option value="{{ s.school_id }}" {% if school_id == s.school_id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="post_category" class="form-label">Post category</label>
+                <select class="form-select" id="post_category" name="post_category">
+                    <option value="">Any</option>
+                    {% for c in ('general', 'academic', 'events', 'clubs', 'questions', 'marketplace') %}
+                    <option value="{{ c }}" {% if post_category == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="event_status" class="form-label">Event status</label>
+                {% if current_user and current_user.role == 'admin' %}
+                <select class="form-select" id="event_status" name="event_status">
+                    <option value="">Published only</option>
+                    {% for st in ('draft', 'published', 'cancelled', 'completed') %}
+                    <option value="{{ st }}" {% if event_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <select class="form-select text-muted" id="event_status" aria-disabled="true" title="Admins only">
+                    <option selected>Published only</option>
+                </select>
+                {% endif %}
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="user_role" class="form-label">User role</label>
+                <select class="form-select" id="user_role" name="user_role">
+                    <option value="">Any</option>
+                    <option value="student" {% if user_role == 'student' %}selected{% endif %}>Student</option>
+                    <option value="staff" {% if user_role == 'staff' %}selected{% endif %}>Staff</option>
+                    <option value="admin" {% if user_role == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+            <div class="col-12 d-flex flex-wrap gap-2">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a class="btn btn-outline-secondary" href="{{ url_for('search.search') }}">Reset</a>
+            </div>
+        </div>
+        {% if not current_user %}
+        <p class="small text-muted mb-0 mt-3">Sign in to search <strong>users</strong> in your school directory.</p>
+        {% endif %}
+        {% if not current_user or current_user.role != 'admin' %}
+        <p class="small text-muted mb-0 mt-1">Non-admins search <strong>published</strong> events only (event status filter is admin-only).</p>
+        {% endif %}
+    </div>
+</form>
+
+{% if has_query and scope == 'all' %}
+<div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+        <h2 class="h6 text-uppercase text-muted">Schools</h2>
+        {% if results.schools %}
+        <ul class="list-group list-group-flush border rounded small">
+            {% for row in results.schools %}
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                <div>
+                    <strong>{{ row.name }}</strong>
+                    <div class="text-muted">{{ row.city or '—' }}{% if row.campus %} · {{ row.campus }}{% endif %}</div>
+                </div>
+                {% if current_user and current_user.role == 'admin' %}
+                <a class="btn btn-sm btn-outline-primary flex-shrink-0" href="{{ url_for('schools.school_detail', school_id=row.school_id) }}">View</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <a class="btn btn-link btn-sm px-0" href="{{ search_url(type='schools', page=1) }}">All school matches →</a>
+        {% else %}
+        <p class="small text-muted">No schools.</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <h2 class="h6 text-uppercase text-muted">Users</h2>
+        {% if results.users %}
+        <ul class="list-group list-group-flush border rounded small">
+            {% for row in results.users %}
+            <li class="list-group-item">
+                <strong>@{{ row.username }}</strong>
+                <span class="text-muted">· {{ row.school_name }}</span>
+                <span class="badge text-bg-light border ms-1">{{ row.role }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <a class="btn btn-link btn-sm px-0" href="{{ search_url(type='users', page=1) }}">All user matches →</a>
+        {% else %}
+        <p class="small text-muted">{% if not current_user %}Sign in to search users.{% else %}No users.{% endif %}</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <h2 class="h6 text-uppercase text-muted">Posts</h2>
+        {% if results.posts %}
+        <ul class="list-group list-group-flush border rounded small">
+            {% for row in results.posts %}
+            <li class="list-group-item">
+                <a href="{{ url_for('posts.feed') }}#post-{{ row.post_id }}">{{ row.title }}</a>
+                <div class="text-muted">@{{ row.username }} · {{ row.category }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a class="btn btn-link btn-sm px-0" href="{{ search_url(type='posts', page=1) }}">All post matches →</a>
+        {% else %}
+        <p class="small text-muted">No posts.</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <h2 class="h6 text-uppercase text-muted">Events</h2>
+        {% if results.events %}
+        <ul class="list-group list-group-flush border rounded small">
+            {% for row in results.events %}
+            <li class="list-group-item">
+                <a href="{{ url_for('events.event_detail', event_id=row.event_id) }}">{{ row.title }}</a>
+                <div class="text-muted">{{ row.starts_at }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a class="btn btn-link btn-sm px-0" href="{{ search_url(type='events', page=1) }}">All event matches →</a>
+        {% else %}
+        <p class="small text-muted">No events.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% elif has_query and scope == 'schools' %}
+<div class="vstack gap-3">
+    {% for row in results.schools %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-3 d-flex flex-wrap justify-content-between gap-2">
+            <div>
+                <h3 class="h6 mb-1">{{ row.name }}</h3>
+                <p class="small text-muted mb-0">{{ row.school_code }} · {{ row.city or '—' }}{% if row.campus %} · {{ row.campus }}{% endif %}</p>
+            </div>
+            {% if current_user and current_user.role == 'admin' %}
+            <a class="btn btn-sm btn-outline-primary align-self-center" href="{{ url_for('schools.school_detail', school_id=row.school_id) }}">Open</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No schools found.</p>
+    {% endfor %}
+</div>
+
+{% elif has_query and scope == 'users' %}
+<div class="vstack gap-3">
+    {% if not current_user %}
+    <p class="text-muted">Sign in to search users.</p>
+    {% else %}
+        {% for row in results.users %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-3">
+                <strong>@{{ row.username }}</strong>
+                <span class="text-muted">· {{ row.first_name }} {{ row.last_name }}</span>
+                <span class="badge text-bg-secondary ms-2">{{ row.role }}</span>
+                <span class="small text-muted d-block mt-1">{{ row.school_name }}</span>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No users found.</p>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% elif has_query and scope == 'posts' %}
+<div class="vstack gap-3">
+    {% for row in results.posts %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-3">
+            <div class="d-flex flex-wrap justify-content-between gap-2">
+                <h3 class="h6 mb-1"><a href="{{ url_for('posts.feed') }}#post-{{ row.post_id }}">{{ row.title }}</a></h3>
+                <span class="badge text-bg-primary">{{ row.category }}</span>
+            </div>
+            <p class="small text-muted mb-0">@{{ row.username }} · {{ row.school_name }} · {{ row.privacy }} · {{ row.created_at }}</p>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No posts found.</p>
+    {% endfor %}
+</div>
+
+{% elif has_query and scope == 'events' %}
+<div class="vstack gap-3">
+    {% for row in results.events %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body py-3 d-flex flex-wrap justify-content-between gap-2">
+            <div>
+                <h3 class="h6 mb-1"><a href="{{ url_for('events.event_detail', event_id=row.event_id) }}">{{ row.title }}</a></h3>
+                <p class="small text-muted mb-0">{{ row.starts_at }}{% if row.location %} · {{ row.location }}{% endif %} · {{ row.school_name }}</p>
+            </div>
+            <span class="badge text-bg-light border align-self-center">{{ row.event_status }}</span>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No events found.</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if has_query and pagination and pagination.pages > 1 %}
+<nav class="mt-4" aria-label="Search results pagination">
+    <ul class="pagination justify-content-center flex-wrap mb-0">
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            {% if pagination.has_prev %}
+            <a class="page-link" href="{{ search_url(page=pagination.prev_num) }}">Previous</a>
+            {% else %}
+            <span class="page-link">Previous</span>
+            {% endif %}
+        </li>
+        <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            {% if pagination.has_next %}
+            <a class="page-link" href="{{ search_url(page=pagination.next_num) }}">Next</a>
+            {% else %}
+            <span class="page-link">Next</span>
+            {% endif %}
+        </li>
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

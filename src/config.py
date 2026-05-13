@@ -26,3 +26,5 @@ class Config:
 
     POSTS_PER_PAGE = int(os.getenv("POSTS_PER_PAGE", 10))
     EVENTS_PER_PAGE = int(os.getenv("EVENTS_PER_PAGE", 12))
+    SEARCH_PER_PAGE = int(os.getenv("SEARCH_PER_PAGE", 10))
+    SEARCH_PREVIEW = int(os.getenv("SEARCH_PREVIEW", 5))

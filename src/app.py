@@ -7,6 +7,7 @@ from routes.events import events_bp
 from routes.main import main_bp
 from routes.posts import posts_bp
 from routes.schools import schools_bp
+from routes.search import search_bp
 from utils.session_middleware import init_session_middleware
 
 
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(schools_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(events_bp)
+    app.register_blueprint(search_bp)
     app.register_blueprint(main_bp)
 
     @app.errorhandler(404)
