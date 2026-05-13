@@ -1,11 +1,3 @@
--- CampusLink relational schema (MySQL 8+)
--- Designed for 3NF with explicit foreign keys, cascading rules, and indexes.
-
-CREATE DATABASE IF NOT EXISTS campuslink_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE campuslink_db;
 
 -- -----------------------------
 -- 1) schools
