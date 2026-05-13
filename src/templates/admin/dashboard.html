@@ -1,16 +1,96 @@
-{% extends "base.html" %}
+{% extends "admin/layout.html" %}
 
-{% block title %}Admin | CampusLink{% endblock %}
+{% block title %}Moderation overview | CampusLink{% endblock %}
 
-{% block content %}
-<h2 class="mb-3">Administration</h2>
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Overview</li>
+{% endblock %}
+
+{% block admin_main %}
+<h1 class="h3 mb-2">Moderation overview</h1>
 <p class="text-muted mb-4">
-    This area is restricted to users with the <strong>admin</strong> role.
+    Role-restricted tools for user accounts, content, events, and schools. Access is enforced on every <code>/admin</code> request.
 </p>
-<div class="list-group shadow-sm col-lg-8">
-    <a href="{{ url_for('schools.list_schools') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-        <span>School management</span>
-        <span class="text-muted small">CRUD</span>
-    </a>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 mb-4">
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100 admin-stat-card">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Active users</div>
+                <div class="fs-2 fw-semibold text-primary">{{ overview.get('active_users', 0) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100 admin-stat-card">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Total users</div>
+                <div class="fs-2 fw-semibold text-primary">{{ overview.get('total_users', 0) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100 admin-stat-card">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Posts</div>
+                <div class="fs-2 fw-semibold text-primary">{{ overview.get('total_posts', 0) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100 admin-stat-card">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Draft events</div>
+                <div class="fs-2 fw-semibold text-primary">{{ overview.get('draft_events', 0) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100 admin-stat-card">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Active schools</div>
+                <div class="fs-2 fw-semibold text-primary">{{ overview.get('active_schools', 0) }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 card-title">Users</h2>
+                <p class="card-text small text-muted">Search roles and account status; suspend or restore access.</p>
+                <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline-primary btn-sm">Manage users</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 card-title">Posts</h2>
+                <p class="card-text small text-muted">Review recent posts and remove policy violations.</p>
+                <a href="{{ url_for('admin.posts_moderation') }}" class="btn btn-outline-primary btn-sm">Moderate posts</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 card-title">Events</h2>
+                <p class="card-text small text-muted">Publish organizer drafts when they are ready to go live.</p>
+                <a href="{{ url_for('admin.events_pending') }}" class="btn btn-outline-primary btn-sm">Pending events</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 card-title">Schools</h2>
+                <p class="card-text small text-muted">Create, edit, and retire school records.</p>
+                <a href="{{ url_for('schools.list_schools') }}" class="btn btn-outline-primary btn-sm">School management</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

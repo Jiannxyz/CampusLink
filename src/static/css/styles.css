@@ -5,3 +5,11 @@ body {
 .navbar-brand {
     letter-spacing: 0.3px;
 }
+
+.admin-sidebar.sticky-lg-top {
+    top: 1rem;
+}
+
+.admin-stat-card .fs-2 {
+    font-size: clamp(1.5rem, 3.5vw, 2rem) !important;
+}

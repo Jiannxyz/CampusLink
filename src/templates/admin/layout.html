@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block container_class %}container-fluid px-3 px-lg-4{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Moderation</a></li>
+        {% block admin_breadcrumb %}{% endblock %}
+    </ol>
+</nav>
+<div class="row g-4">
+    <aside class="col-lg-3 col-xl-2">
+        <div class="card border-0 shadow-sm admin-sidebar sticky-lg-top">
+            <div class="card-header bg-dark text-white small fw-semibold py-2">Admin panel</div>
+            <div class="list-group list-group-flush small">
+                <a href="{{ url_for('admin.dashboard') }}"
+                   class="list-group-item list-group-item-action{% if request.endpoint == 'admin.dashboard' %} active{% endif %}">Overview</a>
+                <a href="{{ url_for('admin.users_list') }}"
+                   class="list-group-item list-group-item-action{% if request.endpoint in ('admin.users_list', 'admin.user_edit', 'admin.user_update') %} active{% endif %}">Users</a>
+                <a href="{{ url_for('admin.posts_moderation') }}"
+                   class="list-group-item list-group-item-action{% if request.endpoint == 'admin.posts_moderation' %} active{% endif %}">Posts</a>
+                <a href="{{ url_for('admin.events_pending') }}"
+                   class="list-group-item list-group-item-action{% if request.endpoint in ('admin.events_pending', 'admin.event_approve') %} active{% endif %}">Event approvals</a>
+                <a href="{{ url_for('schools.list_schools') }}"
+                   class="list-group-item list-group-item-action">Schools</a>
+            </div>
+        </div>
+    </aside>
+    <div class="col-lg-9 col-xl-10">
+        {% block admin_main %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

@@ -35,15 +35,27 @@ def login_required(view):
     return wrapped
 
 
+def enforce_admin_access():
+    """
+    Role-based gate for admin-only areas. Returns None if the request may proceed,
+    otherwise a redirect response (login or home).
+    """
+    user = getattr(g, "current_user", None)
+    if user is None:
+        flash("Please log in to continue.", "warning")
+        return redirect(url_for("auth.login", next=request.path))
+    if user.get("role") != "admin":
+        flash("You do not have permission to access that page.", "danger")
+        return redirect(url_for("main.home"))
+    return None
+
+
 def admin_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if g.current_user is None:
-            flash("Please log in to continue.", "warning")
-            return redirect(url_for("auth.login", next=request.path))
-        if g.current_user.get("role") != "admin":
-            flash("You do not have permission to access that page.", "danger")
-            return redirect(url_for("main.home"))
+        denied = enforce_admin_access()
+        if denied is not None:
+            return denied
         return view(*args, **kwargs)
 
     return wrapped

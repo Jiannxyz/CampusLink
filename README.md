@@ -27,6 +27,20 @@ Admins can manage schools at **Schools** in the navbar (`/schools`): list, detai
 
 Deleting a school is blocked while **users** still reference it (`users.school_id` is `RESTRICT`). Other tables that reference schools may also prevent delete; in that case MySQL returns an error and a flash message is shown.
 
+## Admin moderation panel
+
+Users with role **`admin`** can open **Moderation** in the navbar (`/admin/dashboard`). Every request under the `admin` blueprint runs **`before_request`** middleware that checks the signed-in session user and **`role == 'admin'`** (same rules as `@admin_required` on school management routes).
+
+From the panel, admins can:
+
+- **Overview** — counts for users, posts, draft events, and schools.
+- **Users** — list and edit **role** and **account status** (cannot remove the last active admin; cannot set your own account to non-active from this form).
+- **Posts** — browse recent posts and **delete** inappropriate content (same server rules as the feed: admins pass `_can_manage_post`).
+- **Event approvals** — list **draft** events and **publish** them (validation allows past start times for backlog approval).
+- **Schools** — link to existing school CRUD at `/schools`.
+
+Optional: set list page size with **`ADMIN_MODERATION_PER_PAGE`** in `.env` (default 20).
+
 If your database was created from an older `schema.sql` without `campus`, `province`, `description`, or `logo_path`, run:
 
 - `mysql -u root -p < database/migrations/001_schools_extended_fields.sql`  
@@ -78,4 +92,4 @@ If **`event_rsvps`** is missing (needed for RSVPs), run:
 - Registration creates **student** accounts (`role = student`, `account_status = active`).
 - Passwords are hashed with `werkzeug.security` (PBKDF2 by default).
 - Sessions use Flask’s signed cookie; configure `SESSION_COOKIE_SECURE` for HTTPS in production.
-- Protected routes use `@login_required`; admin pages use `@admin_required` (see `src/routes/admin.py`).
+- Protected routes use `@login_required`; school CRUD uses `@admin_required` (see `src/utils/auth_helpers.py`). The **admin moderation** blueprint (`src/routes/admin.py`) applies the same role check via `@admin_bp.before_request` calling `enforce_admin_access()`.

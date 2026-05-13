@@ -12,7 +12,7 @@ from flask import (
     url_for,
 )
 
-from utils.auth_helpers import login_required
+from utils.auth_helpers import login_required, safe_next_path
 from utils.comment_validation import validate_comment_content
 from utils.db import db_cursor
 from utils.post_validation import validate_post_form
@@ -692,22 +692,26 @@ def edit_post(post_id):
 @posts_bp.route("/posts/<int:post_id>/delete", methods=["POST"])
 @login_required
 def delete_post(post_id):
+    after_delete = redirect(
+        safe_next_path(request.form.get("next")) or url_for("posts.feed")
+    )
+
     post = _fetch_post(post_id)
     if not post:
         flash("Post not found.", "warning")
-        return redirect(url_for("posts.feed"))
+        return after_delete
 
     if not _can_manage_post(post):
         flash("You cannot delete this post.", "danger")
-        return redirect(url_for("posts.feed"))
+        return after_delete
 
     with db_cursor() as pair:
         if pair is None:
             flash("Cannot reach the database.", "danger")
-            return redirect(url_for("posts.feed"))
+            return after_delete
         conn, cur = pair
         cur.execute("DELETE FROM posts WHERE post_id = %s", (post_id,))
         conn.commit()
 
     flash("Post deleted.", "info")
-    return redirect(url_for("posts.feed"))
+    return after_delete

@@ -1,0 +1,50 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Edit user | Moderation | CampusLink{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.users_list') }}">Users</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ user_row.username }}</li>
+{% endblock %}
+
+{% block admin_main %}
+<h1 class="h3 mb-3">Edit user</h1>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <dl class="row small mb-4">
+                    <dt class="col-sm-3">Username</dt>
+                    <dd class="col-sm-9">{{ user_row.username }}</dd>
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">{{ user_row.email }}</dd>
+                    <dt class="col-sm-3">School</dt>
+                    <dd class="col-sm-9">{{ user_row.school_name }}</dd>
+                </dl>
+
+                <form method="post" action="{{ url_for('admin.user_update', user_id=user_row.user_id) }}">
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            {% for r in ('student', 'staff', 'admin') %}
+                            <option value="{{ r }}"{% if user_row.role == r %} selected{% endif %}>{{ r }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="account_status" class="form-label">Account status</label>
+                        <select class="form-select" id="account_status" name="account_status" required>
+                            {% for s in ('pending', 'active', 'suspended', 'deactivated') %}
+                            <option value="{{ s }}"{% if user_row.account_status == s %} selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <a href="{{ url_for('admin.users_list') }}" class="btn btn-link">Back to list</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

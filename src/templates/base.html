@@ -54,7 +54,7 @@
                         <a class="nav-link" href="{{ url_for('schools.list_schools') }}">Schools</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin</a>
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Moderation</a>
                     </li>
                     {% endif %}
                     <li class="nav-item ms-lg-2">
@@ -79,7 +79,7 @@
     </nav>
 
     <main class="py-4">
-        <div class="container">
+        <div class="{% block container_class %}container{% endblock %}">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -101,5 +101,6 @@
         crossorigin="anonymous"
     ></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>
