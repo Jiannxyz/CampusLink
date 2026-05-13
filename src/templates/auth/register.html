@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Register | CampusLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-4">Create your account</h2>
+        <p class="text-muted small mb-4">
+            New accounts are created as <strong>students</strong>. Administrators are assigned separately.
+        </p>
+        <form method="post" action="{{ url_for('auth.register') }}" novalidate>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="first_name" class="form-label">First name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required maxlength="80">
+                </div>
+                <div class="col-md-6">
+                    <label for="last_name" class="form-label">Last name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required maxlength="80">
+                </div>
+                <div class="col-md-6">
+                    <label for="username" class="form-label">Username</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="username"
+                        name="username"
+                        required
+                        minlength="3"
+                        maxlength="50"
+                        pattern="[a-zA-Z0-9_]+"
+                        title="Letters, numbers, and underscores only"
+                        autocomplete="username"
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">School email</label>
+                    <input type="email" class="form-control" id="email" name="email" required maxlength="120" autocomplete="email">
+                </div>
+                <div class="col-12">
+                    <label for="school_id" class="form-label">School</label>
+                    <select class="form-select" id="school_id" name="school_id" required {% if not schools %}disabled{% endif %}>
+                        <option value="" selected disabled>Select your school</option>
+                        {% for s in schools %}
+                            <option value="{{ s.school_id }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                    >
+                    <div class="form-text">At least 8 characters.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="confirm_password" class="form-label">Confirm password</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="confirm_password"
+                        name="confirm_password"
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                    >
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary" {% if not schools %}disabled{% endif %}>Register</button>
+                <a class="btn btn-link" href="{{ url_for('auth.login') }}">Already have an account?</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

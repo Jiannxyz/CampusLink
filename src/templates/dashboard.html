@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CampusLink{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Hello, {{ current_user.first_name }}</h2>
+<p class="lead text-muted">
+    You are signed in as <strong>@{{ current_user.username }}</strong>
+    ({{ current_user.role }}).
+</p>
+<p class="text-muted">
+    Use the navigation bar to explore the site. Protected pages redirect visitors to the sign-in screen.
+</p>
+{% endblock %}

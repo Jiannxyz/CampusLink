@@ -9,7 +9,12 @@
         <p class="col-md-8 fs-5 text-muted">
             A beginner-friendly Flask starter for campus projects, with clean structure and MySQL support.
         </p>
-        <a class="btn btn-primary btn-lg" href="{{ url_for('main.about') }}">Learn More</a>
+        {% if current_user %}
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('main.dashboard') }}">Go to dashboard</a>
+        {% else %}
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('auth.register') }}">Join CampusLink</a>
+        <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('auth.login') }}">Sign in</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
