@@ -3,24 +3,30 @@
 {% block title %}New event | CampusLink{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ url_for('events.upcoming') }}">Events</a></li>
-        <li class="breadcrumb-item active" aria-current="page">New</li>
-    </ol>
-</nav>
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+        <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('events.upcoming') }}">Events</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New</li>
+            </ol>
+        </nav>
 
-<h1 class="h3 mb-2">Create event</h1>
-<p class="text-muted small mb-4">You are the organizer. Venue is stored as the event location; dates use your browser’s local time.</p>
-{% if not schools %}
-<p class="small text-muted mb-3">This event will be listed under <strong>your school</strong>.</p>
-{% endif %}
+        <div class="cl-card border-0 p-4 p-md-5 mb-4">
+            <h1 class="h3 fw-bold mb-2">Create event</h1>
+            <p class="text-muted small mb-4">You are the organizer. Venue is stored as the event location; dates use your browser’s local time.</p>
+            {% if not schools %}
+            <p class="small text-muted mb-3">This event will be listed under <strong>your school</strong>.</p>
+            {% endif %}
 
-<form method="post" action="{{ url_for('events.create_event') }}" novalidate class="col-xl-9">
-    {% include "events/_form_fields.html" %}
-    <div class="mt-4 d-flex flex-wrap gap-2">
-        <button type="submit" class="btn btn-primary">Save event</button>
-        <a class="btn btn-outline-secondary" href="{{ url_for('events.upcoming') }}">Cancel</a>
+            <form method="post" action="{{ url_for('events.create_event') }}" novalidate class="campus-form">
+                {% include "events/_form_fields.html" %}
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Save event</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('events.upcoming') }}">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}

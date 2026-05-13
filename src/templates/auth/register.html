@@ -3,9 +3,9 @@
 {% block title %}Register | CampusLink{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <h2 class="mb-4">Create your account</h2>
+<div class="cl-auth-card-wide py-2">
+    <div class="cl-auth-card campus-form">
+        <h1 class="h4 fw-bold mb-1">Create your account</h1>
         <p class="text-muted small mb-4">
             New accounts are created as <strong>students</strong>. Administrators are assigned separately.
         </p>
@@ -73,9 +73,9 @@
                     >
                 </div>
             </div>
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary" {% if not schools %}disabled{% endif %}>Register</button>
-                <a class="btn btn-link" href="{{ url_for('auth.login') }}">Already have an account?</a>
+            <div class="mt-4 d-flex flex-wrap gap-2 align-items-center">
+                <button type="submit" class="btn btn-primary px-4" {% if not schools %}disabled{% endif %}>Register</button>
+                <a class="btn btn-link btn-sm" href="{{ url_for('auth.login') }}">Already have an account?</a>
             </div>
         </form>
     </div>

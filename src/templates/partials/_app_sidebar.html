@@ -1,0 +1,60 @@
+{# Dark app sidebar — included from base.html; active states from request.endpoint #}
+{% set ep = request.endpoint %}
+{% set is_feed = ep in ('posts.feed', 'posts.create_post', 'posts.edit_post') %}
+{% set is_events = ep and ep.startswith('events.') %}
+{% set is_search = ep == 'search.search' %}
+{% set is_home = ep == 'main.home' %}
+{% set is_about = ep == 'main.about' %}
+{% set is_dashboard = ep == 'main.dashboard' %}
+{% set is_schools = ep and ep.startswith('schools.') %}
+{% set is_admin = ep and ep.startswith('admin.') %}
+
+<div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none py-3">
+    <span class="h6 mb-0 text-white fw-semibold">CampusLink</span>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close menu"></button>
+</div>
+<div class="offcanvas-body d-flex flex-column p-0">
+    <div class="campus-sidebar-brand d-none d-lg-flex align-items-center gap-2 px-3 py-4 border-bottom border-white border-opacity-10">
+        <span class="campus-sidebar-logo rounded-2 d-flex align-items-center justify-content-center fw-bold text-white">C</span>
+        <div>
+            <div class="text-white fw-semibold small lh-sm">CampusLink</div>
+            <div class="campus-sidebar-tagline">Your campus network</div>
+        </div>
+    </div>
+    <nav class="nav flex-column campus-sidenav px-2 py-3 gap-1 flex-grow-1">
+        <a class="campus-sidenav-link{% if is_home %} active{% endif %}" href="{{ url_for('main.home') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">⌂</span> Home
+        </a>
+        <a class="campus-sidenav-link{% if is_feed %} active{% endif %}" href="{{ url_for('posts.feed') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">◆</span> Feed
+        </a>
+        <a class="campus-sidenav-link{% if is_events %} active{% endif %}" href="{{ url_for('events.upcoming') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">▣</span> Events
+        </a>
+        <a class="campus-sidenav-link{% if is_search %} active{% endif %}" href="{{ url_for('search.search') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">⌕</span> Search
+        </a>
+        <a class="campus-sidenav-link{% if is_about %} active{% endif %}" href="{{ url_for('main.about') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">ⓘ</span> About
+        </a>
+        {% if current_user %}
+        <div class="campus-sidenav-divider my-2"></div>
+        <a class="campus-sidenav-link{% if is_dashboard %} active{% endif %}" href="{{ url_for('main.dashboard') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">☺</span> Dashboard
+        </a>
+        {% if current_user.role == 'admin' %}
+        <a class="campus-sidenav-link{% if is_schools %} active{% endif %}" href="{{ url_for('schools.list_schools') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">▤</span> Schools
+        </a>
+        <a class="campus-sidenav-link{% if is_admin %} active{% endif %}" href="{{ url_for('admin.dashboard') }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">✓</span> Moderation
+        </a>
+        {% endif %}
+        {% endif %}
+    </nav>
+    {% if current_user %}
+    <div class="campus-sidebar-footer mt-auto p-3 border-top border-white border-opacity-10 small text-white-50">
+        Signed in as <strong class="text-white">@{{ current_user.username }}</strong>
+    </div>
+    {% endif %}
+</div>

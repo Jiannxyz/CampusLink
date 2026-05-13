@@ -3,20 +3,38 @@
 {% block title %}Home | CampusLink{% endblock %}
 
 {% block content %}
-<div class="p-4 p-md-5 mb-4 bg-light rounded-3 border">
-    <div class="container-fluid py-3">
-        <h1 class="display-6 fw-bold">Welcome to CampusLink</h1>
-        <p class="col-md-8 fs-5 text-muted">
-            A beginner-friendly Flask starter for campus projects, with clean structure and MySQL support.
-        </p>
-        {% if current_user %}
-        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('main.dashboard') }}">Go to dashboard</a>
-        <a class="btn btn-outline-primary btn-lg me-2" href="{{ url_for('posts.feed') }}">Open feed</a>
-        {% else %}
-        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('posts.feed') }}">Browse feed</a>
-        <a class="btn btn-outline-secondary btn-lg me-2" href="{{ url_for('auth.register') }}">Join CampusLink</a>
-        <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('auth.login') }}">Sign in</a>
-        {% endif %}
+<div class="cl-hero mb-4">
+    <div class="cl-hero-inner p-4 p-md-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <p class="text-uppercase small fw-bold text-primary mb-2 letter-spacing-wide">Student &amp; school network</p>
+                <h1 class="display-5 fw-bold mb-3">Your campus, connected.</h1>
+                <p class="lead text-muted mb-4">
+                    CampusLink is a modern space for announcements, events, and conversations — built for students, clubs, and administrators.
+                </p>
+                {% if current_user %}
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary btn-lg px-4" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    <a class="btn btn-outline-primary btn-lg px-4" href="{{ url_for('posts.feed') }}">Open feed</a>
+                </div>
+                {% else %}
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary btn-lg px-4" href="{{ url_for('posts.feed') }}">Browse feed</a>
+                    <a class="btn btn-outline-secondary btn-lg px-4" href="{{ url_for('auth.register') }}">Join CampusLink</a>
+                    <a class="btn btn-link btn-lg cl-link-muted" href="{{ url_for('auth.login') }}">Sign in</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-5">
+                <div class="cl-card-glass p-4 rounded-4 border">
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="d-flex gap-2 mb-3"><span class="text-primary fw-bold">✓</span> School-scoped feeds &amp; privacy</li>
+                        <li class="d-flex gap-2 mb-3"><span class="text-primary fw-bold">✓</span> Events &amp; RSVPs</li>
+                        <li class="d-flex gap-2 mb-0"><span class="text-primary fw-bold">✓</span> Search across people &amp; posts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

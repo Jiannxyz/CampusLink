@@ -3,15 +3,21 @@
 {% block title %}About | CampusLink{% endblock %}
 
 {% block content %}
-<h2 class="mb-3">About CampusLink</h2>
-<p>
-    CampusLink is a modular Flask application template that demonstrates:
-</p>
-<ul>
-    <li>Blueprint-based route organization</li>
-    <li>Reusable Jinja layout templates</li>
-    <li>MySQL connection helper with <code>mysql-connector-python</code></li>
-    <li>Bootstrap 5 styling and components</li>
-    <li>Environment variable driven configuration</li>
-</ul>
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        <div class="cl-card border-0 p-4 p-md-5">
+            <h1 class="h3 fw-bold mb-3">About CampusLink</h1>
+            <p class="text-muted lead fs-6 mb-4">
+                CampusLink is a modular Flask application for campus communities — combining feeds, events, search, and administration in one cohesive experience.
+            </p>
+            <ul class="list-unstyled vstack gap-3 mb-0">
+                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Blueprint-based route organization</li>
+                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Reusable Jinja layouts &amp; components</li>
+                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> MySQL via <code>mysql-connector-python</code></li>
+                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Bootstrap 5 UI with a custom campus design system</li>
+                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Environment-driven configuration</li>
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}

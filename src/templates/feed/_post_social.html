@@ -22,12 +22,12 @@
     </div>
 
     {% if post.comments %}
-    <div class="list-group list-group-flush small mb-3 border rounded overflow-hidden">
+    <div class="list-group list-group-flush small mb-3 border rounded-3 overflow-hidden cl-comment-thread">
         {% for c in post.comments %}
-        <div class="list-group-item bg-light bg-opacity-25 px-3 py-2">
+        <div class="list-group-item px-3 py-3">
             <div class="d-flex justify-content-between gap-2 flex-wrap">
                 <div>
-                    <strong>@{{ c.username }}</strong>
+                    <strong class="text-body">@{{ c.username }}</strong>
                     <span class="text-muted">· <time {% if c.created_at %}datetime="{{ c.created_at.isoformat() }}"{% endif %}>{{ c.created_at }}</time></span>
                 </div>
                 {% if current_user and (current_user.user_id|int == c.user_id|int or current_user.role == 'admin') %}
@@ -38,14 +38,14 @@
                 </form>
                 {% endif %}
             </div>
-            <p class="mb-2 mt-1 mb-0" style="white-space: pre-wrap;">{{ c.content }}</p>
+            <p class="mb-2 mt-2 mb-0" style="white-space: pre-wrap;">{{ c.content }}</p>
             {% if c.replies %}
-            <div class="ms-2 ps-2 border-start border-2 mt-2">
+            <div class="ms-md-2 ps-md-3 border-start border-2 mt-3" style="border-color: rgba(79, 70, 229, 0.2) !important;">
                 {% for r in c.replies %}
-                <div class="mb-2 pb-2 {% if not loop.last %}border-bottom border-light{% endif %}">
+                <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}" style="border-color: var(--cl-border) !important;">
                     <div class="d-flex justify-content-between gap-2 flex-wrap">
                         <div>
-                            <strong class="small">@{{ r.username }}</strong>
+                            <strong class="small text-body">@{{ r.username }}</strong>
                             <span class="text-muted small">· <time {% if r.created_at %}datetime="{{ r.created_at.isoformat() }}"{% endif %}>{{ r.created_at }}</time></span>
                         </div>
                         {% if current_user and (current_user.user_id|int == r.user_id|int or current_user.role == 'admin') %}
@@ -56,21 +56,21 @@
                         </form>
                         {% endif %}
                     </div>
-                    <p class="small mb-0 mt-1" style="white-space: pre-wrap;">{{ r.content }}</p>
+                    <p class="small mb-0 mt-2" style="white-space: pre-wrap;">{{ r.content }}</p>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
             {% if current_user %}
             <details class="mt-2">
-                <summary class="small text-primary" style="cursor:pointer;">Reply</summary>
-                <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="mt-2">
+                <summary class="small text-primary fw-semibold" style="cursor: pointer;">Reply</summary>
+                <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="mt-2 campus-form">
                     <input type="hidden" name="redirect_page" value="{{ rp }}">
                     <input type="hidden" name="redirect_school_id" value="{{ rs }}">
                     <input type="hidden" name="parent_comment_id" value="{{ c.comment_id }}">
                     <label class="visually-hidden" for="reply-{{ c.comment_id }}">Reply</label>
                     <textarea class="form-control form-control-sm" id="reply-{{ c.comment_id }}" name="content" rows="2" maxlength="2000" required placeholder="Write a reply…"></textarea>
-                    <button type="submit" class="btn btn-sm btn-primary mt-1">Post reply</button>
+                    <button type="submit" class="btn btn-sm btn-primary mt-2">Post reply</button>
                 </form>
             </details>
             {% endif %}
@@ -80,11 +80,11 @@
     {% endif %}
 
     {% if current_user %}
-    <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="row g-2 align-items-end">
+    <form method="post" action="{{ url_for('posts.add_comment', post_id=post.post_id) }}" class="row g-2 align-items-end campus-form">
         <input type="hidden" name="redirect_page" value="{{ rp }}">
         <input type="hidden" name="redirect_school_id" value="{{ rs }}">
         <div class="col-12">
-            <label for="comment-{{ post.post_id }}" class="form-label small text-muted mb-0">Add a comment</label>
+            <label for="comment-{{ post.post_id }}" class="form-label small text-muted mb-1">Add a comment</label>
             <textarea class="form-control" id="comment-{{ post.post_id }}" name="content" rows="2" maxlength="2000" required placeholder="Share your thoughts…"></textarea>
         </div>
         <div class="col-auto">

@@ -3,95 +3,99 @@
 {% block title %}{{ event.title }} | Events{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ url_for('events.upcoming') }}">Events</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
-    </ol>
-</nav>
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-11">
+        <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('events.upcoming') }}">Events</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+            </ol>
+        </nav>
 
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
-                    <h1 class="h3 mb-0">{{ event.title }}</h1>
-                    <div class="d-flex flex-wrap gap-1">
-                        <span class="badge text-bg-secondary text-uppercase">{{ event.event_status }}</span>
-                        <span class="badge text-bg-primary text-uppercase">{{ event.visibility.replace('_', ' ') }}</span>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card cl-card border-0 mb-4">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                            <h1 class="h3 mb-0 fw-bold">{{ event.title }}</h1>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge text-bg-secondary text-uppercase">{{ event.event_status }}</span>
+                                <span class="badge text-bg-primary text-uppercase">{{ event.visibility.replace('_', ' ') }}</span>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-4">
+                            <strong class="text-body">{{ event.school_name }}</strong>
+                            <span class="mx-1">·</span>Organizer <strong>@{{ event.organizer_username }}</strong>
+                            ({{ event.organizer_first_name }} {{ event.organizer_last_name }})
+                        </p>
+                        <dl class="row small mb-0">
+                            <dt class="col-sm-3 text-muted">Starts</dt>
+                            <dd class="col-sm-9"><time datetime="{{ event.starts_at.isoformat() if event.starts_at else '' }}">{{ event.starts_at }}</time></dd>
+                            {% if event.ends_at %}
+                            <dt class="col-sm-3 text-muted">Ends</dt>
+                            <dd class="col-sm-9"><time datetime="{{ event.ends_at.isoformat() }}">{{ event.ends_at }}</time></dd>
+                            {% endif %}
+                            {% if event.location %}
+                            <dt class="col-sm-3 text-muted">Venue</dt>
+                            <dd class="col-sm-9">{{ event.location }}</dd>
+                            {% endif %}
+                            <dt class="col-sm-3 text-muted">Attendees</dt>
+                            <dd class="col-sm-9">
+                                <strong>{{ event.attendee_count }}</strong> going
+                                {% if event.capacity %}<span class="text-muted">(capacity {{ event.capacity }})</span>{% endif %}
+                            </dd>
+                        </dl>
+                        {% if event.description %}
+                        <hr class="my-4 opacity-25">
+                        <div class="event-description" style="white-space: pre-wrap;">{{ event.description }}</div>
+                        {% endif %}
                     </div>
                 </div>
-                <p class="text-muted mb-3">
-                    <strong>{{ event.school_name }}</strong>
-                    · Organizer <strong>@{{ event.organizer_username }}</strong>
-                    ({{ event.organizer_first_name }} {{ event.organizer_last_name }})
-                </p>
-                <dl class="row small mb-0">
-                    <dt class="col-sm-3">Starts</dt>
-                    <dd class="col-sm-9"><time datetime="{{ event.starts_at.isoformat() if event.starts_at else '' }}">{{ event.starts_at }}</time></dd>
-                    {% if event.ends_at %}
-                    <dt class="col-sm-3">Ends</dt>
-                    <dd class="col-sm-9"><time datetime="{{ event.ends_at.isoformat() }}">{{ event.ends_at }}</time></dd>
-                    {% endif %}
-                    {% if event.location %}
-                    <dt class="col-sm-3">Venue</dt>
-                    <dd class="col-sm-9">{{ event.location }}</dd>
-                    {% endif %}
-                    <dt class="col-sm-3">Attendees</dt>
-                    <dd class="col-sm-9">
-                        <strong>{{ event.attendee_count }}</strong> going
-                        {% if event.capacity %}<span class="text-muted">(capacity {{ event.capacity }})</span>{% endif %}
-                    </dd>
-                </dl>
-                {% if event.description %}
-                <hr>
-                <div class="event-description" style="white-space: pre-wrap;">{{ event.description }}</div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card cl-card border-0 mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="h6 text-uppercase fw-bold text-muted mb-3 letter-spacing-wide">RSVP</h2>
+                        {% if event.event_status == 'published' and current_user and allow_rsvp %}
+                            {% if rsvp_status == 'going' %}
+                            <p class="small text-success mb-3">You are attending.</p>
+                            <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
+                                <input type="hidden" name="action" value="leave">
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Leave event</button>
+                            </form>
+                            {% elif rsvp_status == 'waitlist' %}
+                            <p class="small text-warning mb-3">You are on the waitlist.</p>
+                            <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
+                                <input type="hidden" name="action" value="leave">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Remove from waitlist</button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
+                                <input type="hidden" name="action" value="join">
+                                <button type="submit" class="btn btn-primary w-100">Join / RSVP</button>
+                            </form>
+                            {% endif %}
+                        {% elif event.event_status == 'published' and current_user and not allow_rsvp %}
+                        <p class="small text-muted mb-0">This event has already started — RSVPs are closed.</p>
+                        {% elif event.event_status != 'published' %}
+                        <p class="small text-muted mb-0">RSVP opens for published events only.</p>
+                        {% else %}
+                        <p class="small text-muted mb-0"><a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a> to RSVP.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if can_manage %}
+                <div class="card cl-card border-0">
+                    <div class="card-body p-4 d-grid gap-2">
+                        <a class="btn btn-outline-primary" href="{{ url_for('events.edit_event', event_id=event.event_id) }}">Edit event</a>
+                        <form method="post" action="{{ url_for('events.delete_event', event_id=event.event_id) }}" onsubmit="return confirm('Delete this event and all RSVPs?');">
+                            <button type="submit" class="btn btn-outline-danger w-100">Delete event</button>
+                        </form>
+                    </div>
+                </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card shadow-sm border-0 mb-3">
-            <div class="card-body">
-                <h2 class="h6 text-uppercase text-muted">RSVP</h2>
-                {% if event.event_status == 'published' and current_user and allow_rsvp %}
-                    {% if rsvp_status == 'going' %}
-                    <p class="small text-success mb-2">You are attending.</p>
-                    <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
-                        <input type="hidden" name="action" value="leave">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Leave event</button>
-                    </form>
-                    {% elif rsvp_status == 'waitlist' %}
-                    <p class="small text-warning mb-2">You are on the waitlist.</p>
-                    <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
-                        <input type="hidden" name="action" value="leave">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Remove from waitlist</button>
-                    </form>
-                    {% else %}
-                    <form method="post" action="{{ url_for('events.rsvp_event', event_id=event.event_id) }}">
-                        <input type="hidden" name="action" value="join">
-                        <button type="submit" class="btn btn-primary w-100">Join / RSVP</button>
-                    </form>
-                    {% endif %}
-                {% elif event.event_status == 'published' and current_user and not allow_rsvp %}
-                <p class="small text-muted mb-0">This event has already started — RSVPs are closed.</p>
-                {% elif event.event_status != 'published' %}
-                <p class="small text-muted mb-0">RSVP opens for published events only.</p>
-                {% else %}
-                <p class="small text-muted mb-0"><a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a> to RSVP.</p>
-                {% endif %}
-            </div>
-        </div>
-        {% if can_manage %}
-        <div class="card shadow-sm border-0">
-            <div class="card-body d-grid gap-2">
-                <a class="btn btn-outline-primary" href="{{ url_for('events.edit_event', event_id=event.event_id) }}">Edit event</a>
-                <form method="post" action="{{ url_for('events.delete_event', event_id=event.event_id) }}" onsubmit="return confirm('Delete this event and all RSVPs?');">
-                    <button type="submit" class="btn btn-outline-danger w-100">Delete event</button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

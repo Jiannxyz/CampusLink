@@ -3,11 +3,13 @@
 {% block title %}Search | CampusLink{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">Search CampusLink</h1>
+<header class="cl-page-header">
+    <h1 class="h3 mb-1 fw-bold">Search</h1>
+    <p class="text-muted small mb-0">Find schools, people, posts, and events across CampusLink.</p>
+</header>
 
-<form method="get" action="{{ url_for('search.search') }}" class="card border-0 shadow-sm mb-4" role="search">
-    <div class="card-body">
-        <div class="row g-3 align-items-end">
+<form method="get" action="{{ url_for('search.search') }}" class="cl-card mb-4 campus-form border-0 p-3 p-md-4" role="search">
+    <div class="row g-3 align-items-end">
             <div class="col-12 col-lg-4">
                 <label for="q" class="form-label">Keywords</label>
                 <div class="input-group">
@@ -80,7 +82,6 @@
         {% if not current_user or current_user.role != 'admin' %}
         <p class="small text-muted mb-0 mt-1">Non-admins search <strong>published</strong> events only (event status filter is admin-only).</p>
         {% endif %}
-    </div>
 </form>
 
 {% if has_query and scope == 'all' %}

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block campus_sidebar %}{% endblock %}
+
 {% block container_class %}container-fluid px-3 px-lg-4{% endblock %}
 
 {% block content %}
@@ -11,8 +13,8 @@
 </nav>
 <div class="row g-4">
     <aside class="col-lg-3 col-xl-2">
-        <div class="card border-0 shadow-sm admin-sidebar sticky-lg-top">
-            <div class="card-header bg-dark text-white small fw-semibold py-2">Admin panel</div>
+        <div class="card cl-card border-0 admin-sidebar sticky-lg-top overflow-hidden">
+            <div class="card-header border-0 text-white small fw-semibold py-3" style="background: linear-gradient(135deg, #1e293b, #0f172a);">Admin panel</div>
             <div class="list-group list-group-flush small">
                 <a href="{{ url_for('admin.dashboard') }}"
                    class="list-group-item list-group-item-action{% if request.endpoint == 'admin.dashboard' %} active{% endif %}">Overview</a>

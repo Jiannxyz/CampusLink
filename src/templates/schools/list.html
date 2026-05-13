@@ -3,68 +3,73 @@
 {% block title %}Schools | CampusLink{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Schools</h1>
-    <a class="btn btn-primary" href="{{ url_for('schools.create_school') }}">Add school</a>
-</div>
+<header class="cl-page-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+    <div>
+        <h1 class="h3 mb-1">Schools</h1>
+        <p class="text-muted small mb-0">Manage institutions, domains, and branding.</p>
+    </div>
+    <a class="btn btn-primary px-4" href="{{ url_for('schools.create_school') }}">Add school</a>
+</header>
 
 {% if not schools %}
-<p class="text-muted">No schools found.</p>
+<div class="cl-card p-4 text-muted">No schools found.</div>
 {% else %}
-<div class="table-responsive shadow-sm rounded border bg-white">
-    <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-            <tr>
-                <th scope="col" class="ps-3" style="width:72px;">Logo</th>
-                <th scope="col">Name</th>
-                <th scope="col">Campus</th>
-                <th scope="col">Location</th>
-                <th scope="col">Code</th>
-                <th scope="col">Users</th>
-                <th scope="col">Status</th>
-                <th scope="col" class="text-end pe-3">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in schools %}
-            <tr>
-                <td class="ps-3">
-                    {% if s.logo_path %}
-                        {% if s.logo_path.startswith('http') %}
-                            <img src="{{ s.logo_path }}" alt="" class="rounded border" width="48" height="48" style="object-fit:cover;">
+<div class="cl-table-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="ps-4" style="width:72px;">Logo</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Campus</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Code</th>
+                    <th scope="col">Users</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in schools %}
+                <tr>
+                    <td class="ps-4">
+                        {% if s.logo_path %}
+                            {% if s.logo_path.startswith('http') %}
+                                <img src="{{ s.logo_path }}" alt="" class="rounded-3 border" width="48" height="48" style="object-fit:cover;">
+                            {% else %}
+                                <img src="{{ url_for('static', filename=s.logo_path) }}" alt="" class="rounded-3 border" width="48" height="48" style="object-fit:cover;">
+                            {% endif %}
                         {% else %}
-                            <img src="{{ url_for('static', filename=s.logo_path) }}" alt="" class="rounded border" width="48" height="48" style="object-fit:cover;">
+                            <span class="badge text-bg-light border">—</span>
                         {% endif %}
-                    {% else %}
-                        <span class="badge text-bg-secondary">—</span>
-                    {% endif %}
-                </td>
-                <td class="fw-medium">{{ s.name }}</td>
-                <td>{{ s.campus or '—' }}</td>
-                <td>
-                    {% if s.city or s.province %}
-                        {{ s.city or '' }}{% if s.city and s.province %}, {% endif %}{{ s.province or '' }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-                <td><code>{{ s.school_code }}</code></td>
-                <td>{{ s.user_count }}</td>
-                <td>
-                    {% if s.status == 'active' %}
-                    <span class="badge text-bg-success">Active</span>
-                    {% else %}
-                    <span class="badge text-bg-secondary">Inactive</span>
-                    {% endif %}
-                </td>
-                <td class="text-end pe-3">
-                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('schools.school_detail', school_id=s.school_id) }}">View</a>
-                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('schools.edit_school', school_id=s.school_id) }}">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                    <td class="fw-semibold">{{ s.name }}</td>
+                    <td>{{ s.campus or '—' }}</td>
+                    <td>
+                        {% if s.city or s.province %}
+                            {{ s.city or '' }}{% if s.city and s.province %}, {% endif %}{{ s.province or '' }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td><code class="small">{{ s.school_code }}</code></td>
+                    <td>{{ s.user_count }}</td>
+                    <td>
+                        {% if s.status == 'active' %}
+                        <span class="badge rounded-pill" style="background: rgba(16, 185, 129, 0.12); color: #047857;">Active</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('schools.school_detail', school_id=s.school_id) }}">View</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('schools.edit_school', school_id=s.school_id) }}">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endif %}
 {% endblock %}

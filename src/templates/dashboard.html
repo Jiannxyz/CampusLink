@@ -3,16 +3,27 @@
 {% block title %}Dashboard | CampusLink{% endblock %}
 
 {% block content %}
-<h2 class="mb-3">Hello, {{ current_user.first_name }}</h2>
-<p class="lead text-muted">
-    You are signed in as <strong>@{{ current_user.username }}</strong>
-    ({{ current_user.role }}).
-</p>
-<p class="text-muted mb-3">
-    Use the navigation bar to explore the site. Protected pages redirect visitors to the sign-in screen.
-</p>
-<p>
-    <a class="btn btn-primary" href="{{ url_for('posts.feed') }}">Open campus feed</a>
-    <a class="btn btn-outline-secondary" href="{{ url_for('posts.create_post') }}">Write a post</a>
-</p>
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        <div class="cl-card overflow-hidden mb-4">
+            <div class="p-4 p-md-5 border-bottom" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.06));">
+                <h1 class="h3 fw-bold mb-2">Hello, {{ current_user.first_name }}</h1>
+                <p class="text-muted mb-0">
+                    Signed in as <strong class="text-body">@{{ current_user.username }}</strong>
+                    <span class="badge text-bg-primary ms-2 text-capitalize">{{ current_user.role }}</span>
+                </p>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <p class="text-muted mb-4">
+                    Use the sidebar to move around the app. Protected pages ask visitors to sign in first.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary px-4" href="{{ url_for('posts.feed') }}">Campus feed</a>
+                    <a class="btn btn-outline-primary" href="{{ url_for('posts.create_post') }}">Write a post</a>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('events.upcoming') }}">Browse events</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -3,20 +3,25 @@
 {% block title %}New post | CampusLink{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ url_for('posts.feed') }}">Feed</a></li>
-        <li class="breadcrumb-item active" aria-current="page">New post</li>
-    </ol>
-</nav>
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('posts.feed') }}">Feed</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New post</li>
+            </ol>
+        </nav>
 
-<h1 class="h3 mb-4">Create a post</h1>
-
-<form method="post" action="{{ url_for('posts.create_post') }}" novalidate class="col-xl-8">
-    {% include "posts/_form_fields.html" %}
-    <div class="mt-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary">Publish</button>
-        <a class="btn btn-outline-secondary" href="{{ url_for('posts.feed') }}">Cancel</a>
+        <div class="cl-card border-0 p-4 p-md-5 mb-4">
+            <h1 class="h3 fw-bold mb-4">Create a post</h1>
+            <form method="post" action="{{ url_for('posts.create_post') }}" novalidate class="campus-form">
+                {% include "posts/_form_fields.html" %}
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary px-4">Publish</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('posts.feed') }}">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}
