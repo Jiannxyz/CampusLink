@@ -23,3 +23,5 @@ class Config:
         "true",
         "yes",
     )
+
+    POSTS_PER_PAGE = int(os.getenv("POSTS_PER_PAGE", 10))

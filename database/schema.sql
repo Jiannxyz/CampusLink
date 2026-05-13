@@ -88,10 +88,13 @@ CREATE TABLE IF NOT EXISTS organizations (
 -- -----------------------------
 CREATE TABLE IF NOT EXISTS posts (
     post_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
     school_id BIGINT UNSIGNED NOT NULL,
     organization_id BIGINT UNSIGNED NULL,
     content TEXT NOT NULL,
+    image_path VARCHAR(500) NULL,
+    category ENUM('general', 'academic', 'events', 'clubs', 'questions', 'marketplace') NOT NULL DEFAULT 'general',
     privacy ENUM('public', 'school_only', 'followers_only', 'private') NOT NULL DEFAULT 'school_only',
     post_type ENUM('text', 'image', 'announcement', 'event_share') NOT NULL DEFAULT 'text',
     is_edited TINYINT(1) NOT NULL DEFAULT 0,
@@ -115,7 +118,9 @@ CREATE TABLE IF NOT EXISTS posts (
     INDEX idx_posts_user_created (user_id, created_at),
     INDEX idx_posts_school_created (school_id, created_at),
     INDEX idx_posts_org_created (organization_id, created_at),
-    INDEX idx_posts_privacy (privacy)
+    INDEX idx_posts_privacy (privacy),
+    INDEX idx_posts_category (category),
+    INDEX idx_posts_title (title(80))
 ) ENGINE=InnoDB;
 
 -- -----------------------------

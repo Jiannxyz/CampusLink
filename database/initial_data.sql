@@ -117,11 +117,45 @@ INSERT INTO organizations (
 (1, 2, 'Photography Society', 'photo-soc', 'Campus photo walks and exhibitions.', 'public', 'active');
 
 INSERT INTO posts (
-    user_id, school_id, organization_id, content, privacy, post_type, is_edited
+    user_id, school_id, organization_id, title, content, image_path, category,
+    privacy, post_type, is_edited
 ) VALUES
-(2, 1, 1, 'Welcome to the CS Club feed! First hackathon is next month.', 'school_only', 'text', 0),
-(3, 1, NULL, 'Anyone taking Advanced Databases this semester?', 'school_only', 'text', 0),
-(4, 2, NULL, 'Sharing photos from the spring showcase—great work everyone!', 'public', 'text', 0);
+(
+    2,
+    1,
+    1,
+    'CS Club kick-off',
+    'Welcome to the CS Club feed! First hackathon is next month.',
+    NULL,
+    'clubs',
+    'school_only',
+    'text',
+    0
+),
+(
+    3,
+    1,
+    NULL,
+    'Advanced Databases?',
+    'Anyone taking Advanced Databases this semester?',
+    NULL,
+    'academic',
+    'school_only',
+    'text',
+    0
+),
+(
+    4,
+    2,
+    NULL,
+    'Spring showcase photos',
+    'Sharing photos from the spring showcase—great work everyone!',
+    NULL,
+    'events',
+    'public',
+    'text',
+    0
+);
 
 INSERT INTO comments (post_id, user_id, parent_comment_id, content, is_edited) VALUES
 (1, 3, NULL, 'Count me in for the hackathon!', 0),

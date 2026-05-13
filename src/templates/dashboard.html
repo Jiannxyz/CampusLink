@@ -8,7 +8,11 @@
     You are signed in as <strong>@{{ current_user.username }}</strong>
     ({{ current_user.role }}).
 </p>
-<p class="text-muted">
+<p class="text-muted mb-3">
     Use the navigation bar to explore the site. Protected pages redirect visitors to the sign-in screen.
+</p>
+<p>
+    <a class="btn btn-primary" href="{{ url_for('posts.feed') }}">Open campus feed</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('posts.create_post') }}">Write a post</a>
 </p>
 {% endblock %}

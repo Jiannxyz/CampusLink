@@ -11,8 +11,10 @@
         </p>
         {% if current_user %}
         <a class="btn btn-primary btn-lg me-2" href="{{ url_for('main.dashboard') }}">Go to dashboard</a>
+        <a class="btn btn-outline-primary btn-lg me-2" href="{{ url_for('posts.feed') }}">Open feed</a>
         {% else %}
-        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('auth.register') }}">Join CampusLink</a>
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('posts.feed') }}">Browse feed</a>
+        <a class="btn btn-outline-secondary btn-lg me-2" href="{{ url_for('auth.register') }}">Join CampusLink</a>
         <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('auth.login') }}">Sign in</a>
         {% endif %}
     </div>

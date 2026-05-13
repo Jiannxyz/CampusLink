@@ -1,0 +1,36 @@
+<div class="row g-3">
+    <div class="col-12">
+        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="title" name="title" required maxlength="200"
+               value="{{ values.title }}">
+    </div>
+    <div class="col-md-6">
+        <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+        <select class="form-select" id="category" name="category" required>
+            {% for c in ('general', 'academic', 'events', 'clubs', 'questions', 'marketplace') %}
+            <option value="{{ c }}" {% if values.category == c %}selected{% endif %}>{{ c.replace('_', ' ')|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="privacy" class="form-label">Audience <span class="text-danger">*</span></label>
+        <select class="form-select" id="privacy" name="privacy" required>
+            <option value="public" {% if values.privacy == 'public' %}selected{% endif %}>Public (anyone)</option>
+            <option value="school_only" {% if values.privacy == 'school_only' %}selected{% endif %}>My school only</option>
+            <option value="followers_only" {% if values.privacy == 'followers_only' %}selected{% endif %}>Only me (draft-like)</option>
+            <option value="private" {% if values.privacy == 'private' %}selected{% endif %}>Only me (private)</option>
+        </select>
+        <div class="form-text small">“Followers” visibility is enforced as author-only until follow-based sharing is wired up.</div>
+    </div>
+    <div class="col-12">
+        <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+        <textarea class="form-control" id="content" name="content" rows="6" required maxlength="20000">{{ values.content }}</textarea>
+    </div>
+    <div class="col-12">
+        <label for="image_path" class="form-label">Image path or URL</label>
+        <input type="text" class="form-control" id="image_path" name="image_path" maxlength="500"
+               value="{{ values.image_path }}"
+               placeholder="uploads/posts/photo.jpg or https://…">
+        <div class="form-text">Optional. Relative to <code>static</code> or a full <code>http(s)</code> URL.</div>
+    </div>
+</div>

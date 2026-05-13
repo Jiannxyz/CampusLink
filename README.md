@@ -32,6 +32,17 @@ If your database was created from an older `schema.sql` without `campus`, `provi
 - `mysql -u root -p < database/migrations/001_schools_extended_fields.sql`  
   (edit the `USE …` line in that file to match your database name first.)
 
+If your database predates **post** columns `title`, `image_path`, and `category`, run:
+
+- `mysql -u root -p < database/migrations/002_posts_social_fields.sql`  
+  (edit the `USE …` line first.)
+
+## Campus feed & posts
+
+- **Feed** (`/feed`): paginated posts with optional **school filter**. Guests see **public** posts only; signed-in users also see **school-only** posts for their school and their own **private** / **followers-only** posts (followers-only is author-only until follow-based sharing is implemented).
+- **Create / edit / delete** (`/posts/new`, `/posts/<id>/edit`, POST delete): requires sign-in; **authors** and **admins** can edit or delete.
+- Configure page size with `POSTS_PER_PAGE` in `.env` (default 10).
+
 ## Run Locally
 
 1. Create and activate a virtual environment.
