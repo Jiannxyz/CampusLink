@@ -25,50 +25,12 @@
 <body class="{% block body_class %}campus-body{% endblock %}">
 
 {% block layout %}
-<header class="campus-topnav navbar navbar-expand sticky-top border-bottom">
-    <div class="container-fluid px-3 px-lg-4 align-items-center">
-        <div class="d-flex align-items-center gap-2">
-            <button
-                class="btn btn-icon campus-menu-btn d-lg-none"
-                type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#appSidebar"
-                aria-controls="appSidebar"
-                aria-label="Open menu"
-            >
-                <span class="campus-menu-icon"></span>
-            </button>
-            <a class="navbar-brand campus-brand d-flex align-items-center gap-2 mb-0" href="{{ url_for('main.home') }}">
-                <span class="campus-brand-mark rounded-2 d-inline-flex align-items-center justify-content-center fw-bold text-white">C</span>
-                <span class="campus-brand-text fw-semibold">CampusLink</span>
-            </a>
-        </div>
+{% include "partials/_top_navbar.html" %}
 
-        <div class="ms-auto d-flex align-items-center gap-2 gap-md-3">
-            {% if current_user %}
-            {% include "partials/_user_menu.html" %}
-            {% else %}
-            <a class="btn btn-sm btn-outline-secondary campus-btn-subtle" href="{{ url_for('auth.login') }}">Sign in</a>
-            <a class="btn btn-sm btn-primary campus-btn-primary px-3" href="{{ url_for('auth.register') }}">Join</a>
-            {% endif %}
-        </div>
-    </div>
-</header>
+<div class="campus-app-shell campus-app-shell--topnav d-flex flex-grow-1 flex-column">
+    {% block campus_sidebar %}{% endblock %}
 
-<div class="campus-app-shell d-flex flex-grow-1">
-    {% block campus_sidebar %}
-    <aside
-        id="appSidebar"
-        class="offcanvas offcanvas-start offcanvas-lg campus-sidebar text-bg-dark flex-shrink-0"
-        tabindex="-1"
-        aria-labelledby="appSidebarLabel"
-    >
-        <span class="visually-hidden" id="appSidebarLabel">Main navigation</span>
-        {% include "partials/_app_sidebar.html" %}
-    </aside>
-    {% endblock %}
-
-    <main class="campus-main flex-grow-1 min-w-0 d-flex flex-column">
+    <main class="campus-main campus-main--topnav flex-grow-1 min-w-0 d-flex flex-column">
         <div class="campus-main-inner py-4 px-3 px-sm-4 {% block container_class %}container{% endblock %}">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}

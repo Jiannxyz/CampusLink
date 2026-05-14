@@ -1,50 +1,74 @@
 (function () {
   "use strict";
 
-  function bindPreview(input, img, clearOnEmpty) {
-    if (!input || !img) return;
+  function wireBrowse(btnId, inputId) {
+    var btn = document.getElementById(btnId);
+    var input = document.getElementById(inputId);
+    if (!btn || !input) return;
+    btn.addEventListener("click", function () {
+      input.click();
+    });
+  }
+
+  function bindProfilePreview(input, previewImg, chromeEl) {
+    var lastUrl;
+    if (!input || !previewImg) return;
     input.addEventListener("change", function () {
       var f = input.files && input.files[0];
+      if (lastUrl) {
+        try {
+          URL.revokeObjectURL(lastUrl);
+        } catch (e) {}
+        lastUrl = null;
+      }
       if (!f) {
-        if (clearOnEmpty) {
-          img.classList.add("d-none");
-          img.removeAttribute("src");
-        }
+        previewImg.classList.add("d-none");
+        previewImg.removeAttribute("src");
+        if (chromeEl) chromeEl.classList.remove("d-none");
         return;
       }
-      var url = URL.createObjectURL(f);
-      img.onload = function () {
-        URL.revokeObjectURL(url);
-      };
-      img.src = url;
-      img.classList.remove("d-none");
+      lastUrl = URL.createObjectURL(f);
+      previewImg.src = lastUrl;
+      previewImg.classList.remove("d-none");
+      if (chromeEl) chromeEl.classList.add("d-none");
+    });
+  }
+
+  function bindCoverPreview(input, previewImg, coverCurrent, coverPh) {
+    var lastUrl;
+    if (!input || !previewImg) return;
+    input.addEventListener("change", function () {
+      var f = input.files && input.files[0];
+      if (lastUrl) {
+        try {
+          URL.revokeObjectURL(lastUrl);
+        } catch (e) {}
+        lastUrl = null;
+      }
+      if (!f) {
+        previewImg.classList.add("d-none");
+        previewImg.removeAttribute("src");
+        if (coverCurrent) coverCurrent.classList.remove("d-none");
+        if (coverPh) coverPh.classList.remove("d-none");
+        return;
+      }
+      lastUrl = URL.createObjectURL(f);
+      previewImg.src = lastUrl;
+      previewImg.classList.remove("d-none");
+      if (coverCurrent) coverCurrent.classList.add("d-none");
+      if (coverPh) coverPh.classList.add("d-none");
     });
   }
 
   var pIn = document.getElementById("profilePhotoInput");
   var pPrev = document.getElementById("profilePhotoPreview");
-  bindPreview(pIn, pPrev, true);
+  var pChrome = document.getElementById("profileAvatarChrome");
+  bindProfilePreview(pIn, pPrev, pChrome);
+  wireBrowse("profilePhotoBrowseBtn", "profilePhotoInput");
 
   var cIn = document.getElementById("coverPhotoInput");
   var cPrev = document.getElementById("coverPhotoPreview");
   var coverCurrent = document.getElementById("coverCurrent");
   var coverPh = document.getElementById("coverPlaceholder");
-  if (cIn && cPrev) {
-    cIn.addEventListener("change", function () {
-      var f = cIn.files && cIn.files[0];
-      if (!f) {
-        cPrev.classList.add("d-none");
-        cPrev.removeAttribute("src");
-        return;
-      }
-      if (coverCurrent) coverCurrent.classList.add("d-none");
-      if (coverPh) coverPh.classList.add("d-none");
-      var url = URL.createObjectURL(f);
-      cPrev.onload = function () {
-        URL.revokeObjectURL(url);
-      };
-      cPrev.src = url;
-      cPrev.classList.remove("d-none");
-    });
-  }
+  bindCoverPreview(cIn, cPrev, coverCurrent, coverPh);
 })();

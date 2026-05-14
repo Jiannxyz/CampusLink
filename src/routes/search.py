@@ -246,7 +246,7 @@ def search():
     pattern = like_contains(keyword) if keyword else None
     has_query = bool(keyword)
 
-    if not keyword and scope != "all":
+    if not keyword and scope != "all" and not request.args.get("browse"):
         flash("Enter at least 2 characters to search.", "warning")
 
     schools_opts = _active_schools_options()

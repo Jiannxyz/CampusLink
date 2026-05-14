@@ -1,0 +1,42 @@
+{# Left column branding for auth split layout #}
+<div class="cl-auth-brand-inner d-flex flex-column justify-content-between h-100 py-5 px-4 px-xl-5">
+    <div>
+        <a href="{{ url_for('main.home') }}" class="text-decoration-none d-inline-flex align-items-center gap-3 cl-auth-brand-logo-link">
+            <span class="cl-auth-brand-mark rounded-3 d-inline-flex align-items-center justify-content-center fw-bold text-white shadow-lg">C</span>
+            <span class="cl-auth-brand-wordmark fw-bold text-white fs-3 tracking-tight">CampusLink</span>
+        </a>
+        <p class="cl-auth-tagline text-white-50 mt-4 mb-0 fs-5 lh-sm fw-medium">
+            Your academic network — discover events, join conversations, and stay close to your campus.
+        </p>
+        <ul class="list-unstyled mt-5 pt-2 cl-auth-features">
+            <li class="d-flex align-items-start gap-3 mb-4">
+                <span class="cl-auth-feature-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </span>
+                <div>
+                    <div class="text-white fw-semibold small">Built for students &amp; faculty</div>
+                    <div class="text-white-50 small">School-aware feeds, privacy, and discovery.</div>
+                </div>
+            </li>
+            <li class="d-flex align-items-start gap-3 mb-4">
+                <span class="cl-auth-feature-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0">
+                    <i class="bi bi-people-fill"></i>
+                </span>
+                <div>
+                    <div class="text-white fw-semibold small">Social, without the noise</div>
+                    <div class="text-white-50 small">Clubs, posts, and RSVPs in one calm place.</div>
+                </div>
+            </li>
+            <li class="d-flex align-items-start gap-3">
+                <span class="cl-auth-feature-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0">
+                    <i class="bi bi-shield-check"></i>
+                </span>
+                <div>
+                    <div class="text-white fw-semibold small">Trust &amp; clarity</div>
+                    <div class="text-white-50 small">Clear sign-in, your data, your campus boundary.</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <p class="text-white-50 small mb-0 opacity-75">&copy; CampusLink</p>
+</div>

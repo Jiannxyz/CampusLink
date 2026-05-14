@@ -1,6 +1,7 @@
-from flask import Blueprint, flash, render_template
+from flask import Blueprint, render_template
 
 from utils.auth_helpers import login_required
+from utils.db import db_cursor
 
 main_bp = Blueprint("main", __name__)
 
@@ -12,8 +13,27 @@ def home():
 
 @main_bp.route("/about")
 def about():
-    flash("Welcome to the CampusLink demo app!", "info")
     return render_template("about.html")
+
+
+@main_bp.route("/organizations")
+def organizations():
+    rows = []
+    with db_cursor() as pair:
+        if pair:
+            _, cur = pair
+            cur.execute(
+                """
+                SELECT o.organization_id, o.name, o.slug, o.description, s.name AS school_name
+                FROM organizations o
+                INNER JOIN schools s ON s.school_id = o.school_id
+                WHERE o.status = 'active' AND s.status = 'active'
+                ORDER BY o.name ASC
+                LIMIT 200
+                """
+            )
+            rows = cur.fetchall()
+    return render_template("main/organizations.html", organizations=rows)
 
 
 @main_bp.route("/dashboard")

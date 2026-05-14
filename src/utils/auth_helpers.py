@@ -14,14 +14,27 @@ def fetch_user_by_id(user_id):
         conn, cur = pair
         cur.execute(
             """
-            SELECT user_id, school_id, username, email,
-                   first_name, last_name, role, account_status,
-                   bio, profile_image_url, cover_image_path,
-                   last_seen_at,
-                   social_link_website, social_link_twitter, social_link_linkedin,
-                   created_at
-            FROM users
-            WHERE user_id = %s
+            SELECT
+                u.user_id,
+                u.school_id,
+                u.username,
+                u.email,
+                u.first_name,
+                u.last_name,
+                u.role,
+                u.account_status,
+                u.bio,
+                u.profile_image_url,
+                u.cover_image_path,
+                u.last_seen_at,
+                u.social_link_website,
+                u.social_link_twitter,
+                u.social_link_linkedin,
+                u.created_at,
+                s.name AS school_name
+            FROM users u
+            INNER JOIN schools s ON s.school_id = u.school_id
+            WHERE u.user_id = %s
             """,
             (user_id,),
         )

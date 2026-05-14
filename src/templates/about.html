@@ -3,21 +3,189 @@
 {% block title %}About | CampusLink{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-9 col-xl-8">
-        <div class="cl-card border-0 p-4 p-md-5">
-            <h1 class="h3 fw-bold mb-3">About CampusLink</h1>
-            <p class="text-muted lead fs-6 mb-4">
-                CampusLink is a modular Flask application for campus communities — combining feeds, events, search, and administration in one cohesive experience.
+<div class="cl-about-page">
+    <section class="cl-about-hero rounded-4 text-white position-relative overflow-hidden mb-5">
+        <div class="cl-about-hero-bg position-absolute top-0 start-0 w-100 h-100"></div>
+        <div class="position-relative z-1 px-4 py-5 px-md-5 text-center">
+            <span class="cl-about-hero-badge d-inline-block rounded-pill px-3 py-1 small fw-semibold mb-3">CampusLink</span>
+            <h1 class="display-6 fw-bold mb-3">Connect campuses. Grow communities.</h1>
+            <p class="lead mx-auto mb-0 cl-about-hero-lead">
+                An inter-school social and events platform where students, schools, and organizations meet — share what matters, discover what’s next, and stay engaged with campus life.
             </p>
-            <ul class="list-unstyled vstack gap-3 mb-0">
-                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Blueprint-based route organization</li>
-                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Reusable Jinja layouts &amp; components</li>
-                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> MySQL via <code>mysql-connector-python</code></li>
-                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Bootstrap 5 UI with a custom campus design system</li>
-                <li class="d-flex gap-3"><span class="text-primary fw-bold">→</span> Environment-driven configuration</li>
-            </ul>
         </div>
-    </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="h4 fw-bold mb-3">About CampusLink</h2>
+                <p class="text-secondary mb-3">
+                    CampusLink is an <strong>inter-school social networking and event platform</strong>. It connects students, schools, and organizations so everyone can see what’s happening beyond a single classroom or bulletin board.
+                </p>
+                <p class="text-secondary mb-3">
+                    Schools and groups can share <strong>events, announcements, and campus activities</strong> in one trusted space. Students follow feeds, RSVP to events, and explore communities — encouraging <strong>collaboration across campuses</strong> and stronger <strong>student engagement</strong>.
+                </p>
+                <p class="text-secondary mb-0">
+                    Whether you’re promoting a club fair, a lecture series, or a weekend meetup, CampusLink helps your message reach the right people at the right time.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="cl-about-glass rounded-4 p-4 p-md-5 border">
+                    <ul class="list-unstyled vstack gap-4 mb-0">
+                        <li class="d-flex gap-3">
+                            <span class="cl-about-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0"><i class="bi bi-globe2"></i></span>
+                            <div>
+                                <div class="fw-semibold">Cross-campus visibility</div>
+                                <div class="small text-muted">Public and school-scoped content so communities can share safely.</div>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <span class="cl-about-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0"><i class="bi bi-calendar2-heart"></i></span>
+                            <div>
+                                <div class="fw-semibold">Events at the center</div>
+                                <div class="small text-muted">Discover what’s on and save what you care about.</div>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <span class="cl-about-icon rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0"><i class="bi bi-heart"></i></span>
+                            <div>
+                                <div class="fw-semibold">Built for real communities</div>
+                                <div class="small text-muted">Profiles, organizations, and feeds designed around campus life.</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h4 fw-bold mb-4 text-center">Our mission</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-xl-3">
+                <div class="cl-about-mission-card h-100 rounded-4 border bg-white p-4 text-center shadow-sm">
+                    <i class="bi bi-link-45deg cl-about-mission-ico d-block mb-3"></i>
+                    <h3 class="h6 fw-bold">Connect digitally</h3>
+                    <p class="small text-muted mb-0">Bring campuses together online — so distance doesn’t mean disconnection.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="cl-about-mission-card h-100 rounded-4 border bg-white p-4 text-center shadow-sm">
+                    <i class="bi bi-chat-dots-fill cl-about-mission-ico d-block mb-3"></i>
+                    <h3 class="h6 fw-bold">Promote interaction</h3>
+                    <p class="small text-muted mb-0">Make it easy for students to react, comment, and participate.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="cl-about-mission-card h-100 rounded-4 border bg-white p-4 text-center shadow-sm">
+                    <i class="bi bi-lightbulb cl-about-mission-ico d-block mb-3"></i>
+                    <h3 class="h6 fw-bold">Share opportunities</h3>
+                    <p class="small text-muted mb-0">Surface events and moments students might otherwise miss.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="cl-about-mission-card h-100 rounded-4 border bg-white p-4 text-center shadow-sm">
+                    <i class="bi bi-people cl-about-mission-ico d-block mb-3"></i>
+                    <h3 class="h6 fw-bold">Grow academic communities</h3>
+                    <p class="small text-muted mb-0">Support clubs, cohorts, and school spirit with a shared home base.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h4 fw-bold mb-4 text-center">What you can do</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-columns-gap text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">Social feed</h3>
+                    <p class="small text-muted mb-0">Campus-wide updates, discussions, and media — tuned for school context.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-calendar-event text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">Events</h3>
+                    <p class="small text-muted mb-0">Browse and join events published by your school and community.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-mortarboard text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">School communities</h3>
+                    <p class="small text-muted mb-0">Stay aligned with your institution while discovering broader networks.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-diagram-3 text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">Organizations</h3>
+                    <p class="small text-muted mb-0">Clubs and groups have a place to be seen and grow membership.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-person-badge text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">Student profiles</h3>
+                    <p class="small text-muted mb-0">Represent yourself, link socials, and connect with classmates.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="cl-about-feature h-100 rounded-4 border-0 shadow-sm p-4 bg-white position-relative overflow-hidden">
+                    <i class="bi bi-share text-primary fs-3 mb-3 d-block"></i>
+                    <h3 class="h6 fw-bold">Campus networking</h3>
+                    <p class="small text-muted mb-0">Search, follow activity, and build bridges between people and places.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h4 fw-bold mb-4 text-center">Creators</h2>
+        <div class="row g-4 justify-content-center">
+            {% for person in [
+                {'name': 'Jian Alvarez', 'role': 'Product & experience'},
+                {'name': 'Christian Sta. Cruz', 'role': 'Engineering & design'},
+                {'name': 'Victoria Alano', 'role': 'Community & content'}
+            ] %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="cl-about-creator text-center rounded-4 border bg-white p-4 shadow-sm h-100">
+                    <div class="cl-about-creator-avatar mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center fw-bold text-white">
+                        {{ person.name[0] }}
+                    </div>
+                    <div class="fw-bold">{{ person.name }}</div>
+                    <div class="small text-muted">{{ person.role }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="cl-about-glass rounded-4 p-4 p-md-5 border">
+            <h2 class="h5 fw-bold mb-4">Application information</h2>
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4 col-md-3 text-muted">App name</dt>
+                <dd class="col-sm-8 col-md-9">CampusLink</dd>
+                <dt class="col-sm-4 col-md-3 text-muted">Version</dt>
+                <dd class="col-sm-8 col-md-9">v1.0.0</dd>
+                <dt class="col-sm-4 col-md-3 text-muted">Release type</dt>
+                <dd class="col-sm-8 col-md-9">Academic project</dd>
+                <dt class="col-sm-4 col-md-3 text-muted">Platform type</dt>
+                <dd class="col-sm-8 col-md-9">Web-based social networking system</dd>
+                <dt class="col-sm-4 col-md-3 text-muted">Developed for</dt>
+                <dd class="col-sm-8 col-md-9">Information Management 1</dd>
+                <dt class="col-sm-4 col-md-3 text-muted">Focus</dt>
+                <dd class="col-sm-8 col-md-9 mb-0">School community platform</dd>
+            </dl>
+        </div>
+    </section>
+
+    <footer class="cl-about-footer text-center rounded-4 py-4 px-3 border">
+        <div class="fw-semibold mb-1">CampusLink</div>
+        <div class="small text-muted mb-2">Building kinder, clearer campus connections.</div>
+        <div class="small text-muted">&copy; CampusLink · v1.0.0</div>
+    </footer>
 </div>
 {% endblock %}

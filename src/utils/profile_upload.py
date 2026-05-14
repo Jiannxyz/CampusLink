@@ -20,26 +20,34 @@ def save_user_image(file_storage, user_id, static_folder, subdir="uploads/profil
     Save an uploaded image under static/<subdir>/.
     Returns relative path for static url_for('static', filename=...) or None on skip/fail.
     """
-    if not file_storage or not getattr(file_storage, "filename", None):
+    fn = (getattr(file_storage, "filename", None) or "").strip()
+    if not file_storage or not fn:
         return None
-    if not extension_allowed(file_storage.filename):
+    if not extension_allowed(fn):
         raise ValueError("Image must be PNG, JPG, JPEG, WebP, or GIF.")
-    file_storage.seek(0, os.SEEK_END)
-    size = file_storage.tell()
+    try:
+        file_storage.seek(0, os.SEEK_END)
+        size = file_storage.tell()
+    except OSError:
+        size = 0
     file_storage.seek(0)
     if size > MAX_IMAGE_BYTES:
         raise ValueError("Image must be 3 MB or smaller.")
     if size == 0:
         return None
 
-    ext = Path(secure_filename(file_storage.filename)).suffix.lower()
+    ext = Path(secure_filename(fn)).suffix.lower()
     if ext not in ALLOWED_IMAGE_EXTENSIONS:
         ext = ".jpg"
     name = f"{int(user_id)}_{uuid.uuid4().hex[:10]}{ext}"
     dest_dir = Path(static_folder) / subdir
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest_path = dest_dir / name
-    file_storage.save(dest_path)
+    try:
+        file_storage.seek(0)
+    except OSError:
+        pass
+    file_storage.save(str(dest_path))
     return f"{subdir}/{name}".replace("\\", "/")
 
 

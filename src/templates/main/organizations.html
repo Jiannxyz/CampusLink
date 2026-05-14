@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Organizations | CampusLink{% endblock %}
+
+{% block content %}
+<div class="cl-org-page">
+    <header class="mb-4 pb-3 border-bottom">
+        <h1 class="h3 fw-bold mb-2">Organizations</h1>
+        <p class="text-muted mb-0">Student groups and campus organizations on CampusLink.</p>
+    </header>
+    {% if not organizations %}
+    <div class="cl-card border-0 p-5 text-center text-muted rounded-4">No organizations listed yet.</div>
+    {% else %}
+    <div class="row g-4">
+        {% for o in organizations %}
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="cl-card border-0 h-100 p-4 cl-org-card rounded-4 shadow-sm">
+                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                    <h2 class="h6 fw-bold mb-0 text-truncate">{{ o.name }}</h2>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle flex-shrink-0">Org</span>
+                </div>
+                <p class="small text-muted mb-3"><i class="bi bi-mortarboard me-1"></i>{{ o.school_name }}</p>
+                {% if o.description %}
+                <p class="small mb-0 text-secondary" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;">{{ o.description }}</p>
+                {% else %}
+                <p class="small text-muted mb-0 fst-italic">No description provided.</p>
+                {% endif %}
+                <p class="small text-muted font-monospace mt-3 mb-0">/{{ o.slug }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

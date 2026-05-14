@@ -1,0 +1,65 @@
+{# Sticky glass top nav — expects request, current_user, Bootstrap Icons #}
+{% set ep = request.endpoint %}
+<header class="cl-topnav navbar navbar-expand-lg sticky-top border-0">
+    <div class="container-fluid cl-topnav-inner px-2 px-sm-3 align-items-center gap-2">
+        <a class="navbar-brand cl-topnav-logo d-flex align-items-center justify-content-center mb-0 rounded-circle text-decoration-none" href="{{ url_for('posts.feed') if current_user else url_for('main.home') }}" title="CampusLink — Home">
+            <span class="cl-topnav-logo-mark fw-bold text-white">C</span>
+        </a>
+
+        <button class="navbar-toggler cl-topnav-toggler border-0 shadow-none px-2" type="button" data-bs-toggle="collapse" data-bs-target="#clTopnavCollapse" aria-controls="clTopnavCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <div class="collapse navbar-collapse cl-topnav-collapse" id="clTopnavCollapse">
+            <form class="cl-topnav-search mx-lg-auto my-3 my-lg-0 flex-grow-1 flex-lg-grow-0" method="get" action="{{ url_for('search.search') }}" role="search">
+                <div class="cl-topnav-search-inner position-relative mx-auto">
+                    <i class="bi bi-search cl-topnav-search-icon" aria-hidden="true"></i>
+                    <input
+                        type="search"
+                        class="form-control cl-topnav-search-input"
+                        name="q"
+                        value="{{ request.args.get('q', '') if ep == 'search.search' else '' }}"
+                        minlength="2"
+                        autocomplete="off"
+                        placeholder="Search schools, students, events…"
+                        aria-label="Search"
+                    >
+                </div>
+            </form>
+
+            <div class="navbar-nav ms-lg-auto flex-row flex-wrap align-items-center justify-content-end gap-1 gap-sm-2 cl-topnav-actions">
+                {% if current_user %}
+                <a class="cl-nav-icon-btn {% if ep == 'posts.feed' %}active{% endif %}" href="{{ url_for('posts.feed') }}" title="Home feed" aria-label="Home feed">
+                    <i class="bi bi-house-door-fill"></i>
+                </a>
+                <a class="cl-nav-icon-btn {% if ep and ep.startswith('events.') %}active{% endif %}" href="{{ url_for('events.upcoming') }}" title="Events" aria-label="Events">
+                    <i class="bi bi-calendar-event"></i>
+                </a>
+                <a class="cl-nav-icon-btn {% if ep == 'search.search' and request.args.get('type') == 'schools' %}active{% endif %}" href="{{ url_for('search.search', type='schools', browse=1) }}" title="Schools" aria-label="Schools">
+                    <i class="bi bi-mortarboard"></i>
+                </a>
+                <a class="cl-nav-icon-btn {% if ep == 'main.organizations' %}active{% endif %}" href="{{ url_for('main.organizations') }}" title="Organizations" aria-label="Organizations">
+                    <i class="bi bi-diagram-3"></i>
+                </a>
+                <span class="cl-nav-icon-btn cl-nav-icon-btn--disabled" title="Notifications (coming soon)" aria-disabled="true" role="presentation">
+                    <i class="bi bi-bell"></i>
+                </span>
+                <span class="cl-nav-icon-btn cl-nav-icon-btn--disabled" title="Messages (coming soon)" aria-disabled="true" role="presentation">
+                    <i class="bi bi-chat-dots"></i>
+                </span>
+                {% if current_user.role == 'admin' %}
+                <a class="cl-nav-icon-btn {% if ep and ep.startswith('admin.') %}active{% endif %}" href="{{ url_for('admin.dashboard') }}" title="Moderation" aria-label="Moderation">
+                    <i class="bi bi-shield-check"></i>
+                </a>
+                {% endif %}
+                <div class="ps-lg-2 ms-lg-2 cl-topnav-profile-wrap">
+                    {% include "partials/_user_menu.html" %}
+                </div>
+                {% else %}
+                <a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="{{ url_for('auth.login') }}">Sign in</a>
+                <a class="btn btn-sm btn-primary rounded-pill px-3 cl-nav-join" href="{{ url_for('auth.register') }}">Join</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

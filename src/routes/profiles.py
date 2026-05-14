@@ -415,33 +415,30 @@ def profile_edit():
             new_avatar = None
             new_cover = None
             try:
-                if request.files.get("profile_photo") and request.files["profile_photo"].filename:
-                    new_avatar = save_user_image(
-                        request.files["profile_photo"], uid, static_dir
-                    )
-                if request.files.get("cover_photo") and request.files["cover_photo"].filename:
-                    new_cover = save_user_image(
-                        request.files["cover_photo"], uid, static_dir
-                    )
+                pf = request.files.get("profile_photo")
+                cf = request.files.get("cover_photo")
+                if pf and (pf.filename or "").strip():
+                    new_avatar = save_user_image(pf, uid, static_dir)
+                if cf and (cf.filename or "").strip():
+                    new_cover = save_user_image(cf, uid, static_dir)
             except ValueError as ex:
                 flash(str(ex), "danger")
                 return redirect(url_for("profiles.profile_edit"))
 
             profile_path = row["profile_image_url"]
             cover_path = row["cover_image_path"]
+            remove_avatar = request.form.get("remove_profile_photo")
+            remove_cover = request.form.get("remove_cover_photo")
             if new_avatar:
                 delete_old_upload(static_dir, profile_path)
                 profile_path = new_avatar
+            elif remove_avatar:
+                delete_old_upload(static_dir, profile_path)
+                profile_path = None
             if new_cover:
                 delete_old_upload(static_dir, cover_path)
                 cover_path = new_cover
-
-            remove_avatar = request.form.get("remove_profile_photo")
-            remove_cover = request.form.get("remove_cover_photo")
-            if remove_avatar:
-                delete_old_upload(static_dir, profile_path)
-                profile_path = None
-            if remove_cover:
+            elif remove_cover:
                 delete_old_upload(static_dir, cover_path)
                 cover_path = None
 
@@ -540,6 +537,35 @@ def saved_events_page():
         "profiles/saved_events.html",
         events=rows,
     )
+
+
+@profiles_bp.route("/saved/posts")
+@login_required
+def saved_posts_page():
+    uid = int(g.current_user["user_id"])
+    rows = []
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+        else:
+            _, cur = pair
+            try:
+                cur.execute(
+                    """
+                    SELECT p.post_id, p.title, p.created_at, s.name AS school_name
+                    FROM user_saved_posts us
+                    INNER JOIN posts p ON p.post_id = us.post_id
+                    INNER JOIN schools s ON s.school_id = p.school_id
+                    WHERE us.user_id = %s
+                    ORDER BY us.created_at DESC
+                    LIMIT 100
+                    """,
+                    (uid,),
+                )
+                rows = cur.fetchall()
+            except Exception:
+                flash("Saved posts require the saved posts database table (see migration 005).", "warning")
+    return render_template("profiles/saved_posts.html", posts=rows)
 
 
 @profiles_bp.route("/events/<int:event_id>/save", methods=["POST"])

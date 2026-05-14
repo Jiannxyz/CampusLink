@@ -2,44 +2,103 @@
 
 {% block title %}Sign in | CampusLink{% endblock %}
 
-{% block content %}
-<div class="cl-auth-panel py-2">
-    <div class="cl-auth-card campus-form">
-        <h1 class="h4 fw-bold mb-1">Welcome back</h1>
-        <p class="text-muted small mb-4">Sign in to your CampusLink account.</p>
-        <form method="post" action="{{ url_for('auth.login') }}" novalidate>
-            <input type="hidden" name="next" value="{{ next or '' }}">
-            <div class="mb-3">
-                <label for="identifier" class="form-label">Username or email</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="identifier"
-                    name="identifier"
-                    required
-                    autocomplete="username"
-                >
+{% block body_class %}campus-body cl-auth-page{% endblock %}
+
+{% block layout %}
+<div class="cl-auth-split min-vh-100 position-relative d-flex flex-column">
+    <div class="cl-auth-split-bg" aria-hidden="true">
+        <span class="cl-auth-blob cl-auth-blob--a"></span>
+        <span class="cl-auth-blob cl-auth-blob--b"></span>
+        <span class="cl-auth-blob cl-auth-blob--c"></span>
+        <span class="cl-auth-grid"></span>
+    </div>
+
+    <div class="flex-grow-1 d-flex position-relative z-1 min-vh-100">
+        <div class="container-fluid px-0 flex-grow-1 d-flex">
+            <div class="row g-0 flex-grow-1 w-100 mx-0">
+                <div class="col-lg-6 cl-auth-brand-col d-none d-lg-flex position-relative overflow-hidden min-vh-100">
+                    <div class="cl-auth-brand-shade position-absolute top-0 start-0 w-100 h-100"></div>
+                    <div class="position-relative z-1 w-100 d-flex min-vh-100">
+                        {% include "auth/_auth_brand_panel.html" %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 cl-auth-form-col d-flex flex-column justify-content-center py-4 py-lg-5 px-3 px-sm-4 px-xl-5">
+                    <div class="d-lg-none text-center mb-4 cl-auth-mobile-brand">
+                        <a href="{{ url_for('main.home') }}" class="text-decoration-none d-inline-flex align-items-center justify-content-center gap-2">
+                            <span class="cl-auth-brand-mark cl-auth-brand-mark--sm rounded-2 d-inline-flex align-items-center justify-content-center fw-bold text-white">C</span>
+                            <span class="fw-bold cl-auth-mobile-title">CampusLink</span>
+                        </a>
+                        <p class="small text-muted mb-0 mt-2 px-2">Sign in to your campus network.</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="cl-auth-flash-stack mx-auto w-100 mb-4" style="max-width: 26rem;">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show cl-alert cl-auth-alert" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="cl-auth-glass campus-form mx-auto w-100 p-4 p-md-5">
+                        <h1 class="h4 fw-bold mb-1 cl-auth-heading">Welcome back</h1>
+                        <p class="text-muted small mb-4">Sign in to continue to your feed, events, and profile.</p>
+                        <form method="post" action="{{ url_for('auth.login') }}" novalidate>
+                            <input type="hidden" name="next" value="{{ next or '' }}">
+                            <div class="mb-3">
+                                <label for="identifier" class="form-label small fw-semibold text-secondary">Username or email</label>
+                                <div class="cl-auth-input-wrap">
+                                    <span class="cl-auth-input-icon"><i class="bi bi-person"></i></span>
+                                    <input
+                                        type="text"
+                                        class="form-control cl-auth-input"
+                                        id="identifier"
+                                        name="identifier"
+                                        required
+                                        autocomplete="username"
+                                        placeholder="you@school.edu or username"
+                                    >
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+                                <div class="cl-auth-input-wrap">
+                                    <span class="cl-auth-input-icon"><i class="bi bi-lock"></i></span>
+                                    <input
+                                        type="password"
+                                        class="form-control cl-auth-input"
+                                        id="password"
+                                        name="password"
+                                        required
+                                        autocomplete="current-password"
+                                        placeholder="••••••••"
+                                    >
+                                </div>
+                            </div>
+                            <div class="mb-4 form-check">
+                                <input type="checkbox" class="form-check-input cl-auth-check" id="remember" name="remember">
+                                <label class="form-check-label small" for="remember">Stay signed in</label>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill cl-auth-submit py-2 fw-semibold">Sign in</button>
+                                <a class="btn btn-link btn-sm text-decoration-none" href="{{ url_for('auth.register') }}">
+                                    New to CampusLink? <span class="fw-semibold">Create an account</span>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <p class="text-center small text-muted mt-4 mb-0">
+                        <a href="{{ url_for('main.home') }}" class="text-decoration-none cl-auth-footer-link">← Back to home</a>
+                    </p>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    required
-                    autocomplete="current-password"
-                >
-            </div>
-            <div class="mb-4 form-check">
-                <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                <label class="form-check-label small" for="remember">Stay signed in</label>
-            </div>
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">Sign in</button>
-                <a class="btn btn-link small" href="{{ url_for('auth.register') }}">Create an account</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -2,82 +2,145 @@
 
 {% block title %}Register | CampusLink{% endblock %}
 
-{% block content %}
-<div class="cl-auth-card-wide py-2">
-    <div class="cl-auth-card campus-form">
-        <h1 class="h4 fw-bold mb-1">Create your account</h1>
-        <p class="text-muted small mb-4">
-            New accounts are created as <strong>students</strong>. Administrators are assigned separately.
-        </p>
-        <form method="post" action="{{ url_for('auth.register') }}" novalidate>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="first_name" class="form-label">First name</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name" required maxlength="80">
+{% block body_class %}campus-body cl-auth-page{% endblock %}
+
+{% block layout %}
+<div class="cl-auth-split min-vh-100 position-relative d-flex flex-column">
+    <div class="cl-auth-split-bg" aria-hidden="true">
+        <span class="cl-auth-blob cl-auth-blob--a"></span>
+        <span class="cl-auth-blob cl-auth-blob--b"></span>
+        <span class="cl-auth-blob cl-auth-blob--c"></span>
+        <span class="cl-auth-grid"></span>
+    </div>
+
+    <div class="flex-grow-1 d-flex position-relative z-1 min-vh-100">
+        <div class="container-fluid px-0 flex-grow-1 d-flex">
+            <div class="row g-0 flex-grow-1 w-100 mx-0">
+                <div class="col-lg-6 cl-auth-brand-col d-none d-lg-flex position-relative overflow-hidden min-vh-100">
+                    <div class="cl-auth-brand-shade position-absolute top-0 start-0 w-100 h-100"></div>
+                    <div class="position-relative z-1 w-100 d-flex min-vh-100">
+                        {% include "auth/_auth_brand_panel.html" %}
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label for="last_name" class="form-label">Last name</label>
-                    <input type="text" class="form-control" id="last_name" name="last_name" required maxlength="80">
-                </div>
-                <div class="col-md-6">
-                    <label for="username" class="form-label">Username</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="username"
-                        name="username"
-                        required
-                        minlength="3"
-                        maxlength="50"
-                        pattern="[a-zA-Z0-9_]+"
-                        title="Letters, numbers, and underscores only"
-                        autocomplete="username"
-                    >
-                </div>
-                <div class="col-md-6">
-                    <label for="email" class="form-label">School email</label>
-                    <input type="email" class="form-control" id="email" name="email" required maxlength="120" autocomplete="email">
-                </div>
-                <div class="col-12">
-                    <label for="school_id" class="form-label">School</label>
-                    <select class="form-select" id="school_id" name="school_id" required {% if not schools %}disabled{% endif %}>
-                        <option value="" selected disabled>Select your school</option>
-                        {% for s in schools %}
-                            <option value="{{ s.school_id }}">{{ s.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="password" class="form-label">Password</label>
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                        required
-                        minlength="8"
-                        autocomplete="new-password"
-                    >
-                    <div class="form-text">At least 8 characters.</div>
-                </div>
-                <div class="col-md-6">
-                    <label for="confirm_password" class="form-label">Confirm password</label>
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="confirm_password"
-                        name="confirm_password"
-                        required
-                        minlength="8"
-                        autocomplete="new-password"
-                    >
+
+                <div class="col-12 col-lg-6 cl-auth-form-col d-flex flex-column justify-content-center py-4 py-lg-5 px-3 px-sm-4 px-xl-5">
+                    <div class="d-lg-none text-center mb-4 cl-auth-mobile-brand">
+                        <a href="{{ url_for('main.home') }}" class="text-decoration-none d-inline-flex align-items-center justify-content-center gap-2">
+                            <span class="cl-auth-brand-mark cl-auth-brand-mark--sm rounded-2 d-inline-flex align-items-center justify-content-center fw-bold text-white">C</span>
+                            <span class="fw-bold cl-auth-mobile-title">CampusLink</span>
+                        </a>
+                        <p class="small text-muted mb-0 mt-2 px-2">Join your campus on CampusLink.</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="cl-auth-flash-stack mx-auto w-100 mb-4" style="max-width: 36rem;">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show cl-alert cl-auth-alert" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="cl-auth-glass cl-auth-glass--register campus-form mx-auto w-100 p-4 p-md-5">
+                        <h1 class="h4 fw-bold mb-1 cl-auth-heading">Create your account</h1>
+                        <p class="text-muted small mb-4">
+                            New accounts are created as <strong>students</strong>. Administrators are assigned separately.
+                        </p>
+                        <form method="post" action="{{ url_for('auth.register') }}" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="first_name" class="form-label small fw-semibold text-secondary">First name</label>
+                                    <input type="text" class="form-control cl-auth-input cl-auth-input--plain" id="first_name" name="first_name" required maxlength="80" placeholder="Alex">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="last_name" class="form-label small fw-semibold text-secondary">Last name</label>
+                                    <input type="text" class="form-control cl-auth-input cl-auth-input--plain" id="last_name" name="last_name" required maxlength="80" placeholder="Rivera">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+                                    <div class="cl-auth-input-wrap">
+                                        <span class="cl-auth-input-icon"><i class="bi bi-at"></i></span>
+                                        <input
+                                            type="text"
+                                            class="form-control cl-auth-input"
+                                            id="username"
+                                            name="username"
+                                            required
+                                            minlength="3"
+                                            maxlength="50"
+                                            pattern="[a-zA-Z0-9_]+"
+                                            title="Letters, numbers, and underscores only"
+                                            autocomplete="username"
+                                            placeholder="alexrivera"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label small fw-semibold text-secondary">School email</label>
+                                    <div class="cl-auth-input-wrap">
+                                        <span class="cl-auth-input-icon"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control cl-auth-input" id="email" name="email" required maxlength="120" autocomplete="email" placeholder="you@university.edu">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="school_id" class="form-label small fw-semibold text-secondary">School</label>
+                                    <select class="form-select cl-auth-input cl-auth-input--plain" id="school_id" name="school_id" required {% if not schools %}disabled{% endif %}>
+                                        <option value="" selected disabled>Select your school</option>
+                                        {% for s in schools %}
+                                            <option value="{{ s.school_id }}">{{ s.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+                                    <div class="cl-auth-input-wrap">
+                                        <span class="cl-auth-input-icon"><i class="bi bi-lock"></i></span>
+                                        <input
+                                            type="password"
+                                            class="form-control cl-auth-input"
+                                            id="password"
+                                            name="password"
+                                            required
+                                            minlength="8"
+                                            autocomplete="new-password"
+                                            placeholder="At least 8 characters"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="confirm_password" class="form-label small fw-semibold text-secondary">Confirm password</label>
+                                    <div class="cl-auth-input-wrap">
+                                        <span class="cl-auth-input-icon"><i class="bi bi-lock-fill"></i></span>
+                                        <input
+                                            type="password"
+                                            class="form-control cl-auth-input"
+                                            id="confirm_password"
+                                            name="confirm_password"
+                                            required
+                                            minlength="8"
+                                            autocomplete="new-password"
+                                            placeholder="Repeat password"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex flex-wrap gap-2 align-items-center">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold cl-auth-submit" {% if not schools %}disabled{% endif %}>Create account</button>
+                                <a class="btn btn-link btn-sm text-decoration-none" href="{{ url_for('auth.login') }}">Already have an account? <span class="fw-semibold">Sign in</span></a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <p class="text-center small text-muted mt-4 mb-0">
+                        <a href="{{ url_for('main.home') }}" class="text-decoration-none cl-auth-footer-link">← Back to home</a>
+                    </p>
                 </div>
             </div>
-            <div class="mt-4 d-flex flex-wrap gap-2 align-items-center">
-                <button type="submit" class="btn btn-primary px-4" {% if not schools %}disabled{% endif %}>Register</button>
-                <a class="btn btn-link btn-sm" href="{{ url_for('auth.login') }}">Already have an account?</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
