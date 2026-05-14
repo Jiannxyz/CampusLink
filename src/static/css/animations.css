@@ -1,0 +1,93 @@
+/* Animation utilities + landing motion (respect reduced motion) */
+
+@keyframes cl-reveal-up {
+    from {
+        opacity: 0;
+        transform: translateY(1.25rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cl-landing-blob {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(-2%, 3%) scale(1.04);
+    }
+}
+
+@keyframes cl-landing-hero-in {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cl-reveal {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition: opacity 0.55s var(--cl-ease-out), transform 0.55s var(--cl-ease-out);
+}
+
+.cl-reveal.cl-reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cl-landing-hero-title {
+    animation: cl-landing-hero-in 0.7s var(--cl-ease-out) 0.1s both;
+}
+
+.cl-landing-hero-lead {
+    animation: cl-landing-hero-in 0.7s var(--cl-ease-out) 0.22s both;
+}
+
+.cl-landing-hero-cta {
+    animation: cl-landing-hero-in 0.7s var(--cl-ease-out) 0.34s both;
+}
+
+.cl-landing-blob {
+    animation: cl-landing-blob 14s ease-in-out infinite;
+}
+
+.cl-landing-blob--2 {
+    animation-delay: -4s;
+}
+
+.cl-landing-blob--3 {
+    animation-delay: -8s;
+}
+
+.cl-topnav {
+    transition: box-shadow var(--cl-duration) var(--cl-ease-out), background var(--cl-duration) var(--cl-ease-out);
+}
+
+.cl-topnav.cl-topnav--dense {
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cl-reveal,
+    .cl-landing-hero-title,
+    .cl-landing-hero-lead,
+    .cl-landing-hero-cta {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .cl-landing-blob {
+        animation: none !important;
+    }
+}

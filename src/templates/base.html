@@ -31,7 +31,7 @@
     {% block campus_sidebar %}{% endblock %}
 
     <main class="campus-main campus-main--topnav flex-grow-1 min-w-0 d-flex flex-column">
-        <div class="campus-main-inner py-4 px-3 px-sm-4 {% block container_class %}container{% endblock %}">
+        <div class="campus-main-inner {% block main_inner_class %}py-4 px-3 px-sm-4{% endblock %} {% block container_class %}container{% endblock %}">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="campus-flash-stack mb-4">

@@ -2,8 +2,13 @@
 {% set ep = request.endpoint %}
 <header class="cl-topnav navbar navbar-expand-lg sticky-top border-0">
     <div class="container-fluid cl-topnav-inner px-2 px-sm-3 align-items-center gap-2">
-        <a class="navbar-brand cl-topnav-logo d-flex align-items-center justify-content-center mb-0 rounded-circle text-decoration-none" href="{{ url_for('posts.feed') if current_user else url_for('main.home') }}" title="CampusLink — Home">
-            <span class="cl-topnav-logo-mark fw-bold text-white">C</span>
+        <a class="navbar-brand cl-topnav-brand d-flex align-items-center gap-2 mb-0 text-decoration-none" href="{{ url_for('main.home') if not current_user else url_for('posts.feed') }}" title="CampusLink">
+            <span class="cl-topnav-logo d-flex align-items-center justify-content-center rounded-circle">
+                <span class="cl-topnav-logo-mark fw-bold text-white">C</span>
+            </span>
+            {% if not current_user %}
+            <span class="fw-bold text-body fs-5 cl-topnav-wordmark">CampusLink</span>
+            {% endif %}
         </a>
 
         <button class="navbar-toggler cl-topnav-toggler border-0 shadow-none px-2" type="button" data-bs-toggle="collapse" data-bs-target="#clTopnavCollapse" aria-controls="clTopnavCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,6 +16,7 @@
         </button>
 
         <div class="collapse navbar-collapse cl-topnav-collapse" id="clTopnavCollapse">
+            {% if current_user %}
             <form class="cl-topnav-search mx-lg-auto my-3 my-lg-0 flex-grow-1 flex-lg-grow-0" method="get" action="{{ url_for('search.search') }}" role="search">
                 <div class="cl-topnav-search-inner position-relative mx-auto">
                     <i class="bi bi-search cl-topnav-search-icon" aria-hidden="true"></i>
@@ -26,9 +32,10 @@
                     >
                 </div>
             </form>
+            {% endif %}
 
+            {% if current_user %}
             <div class="navbar-nav ms-lg-auto flex-row flex-wrap align-items-center justify-content-end gap-1 gap-sm-2 cl-topnav-actions">
-                {% if current_user %}
                 <a class="cl-nav-icon-btn {% if ep == 'posts.feed' %}active{% endif %}" href="{{ url_for('posts.feed') }}" title="Home feed" aria-label="Home feed">
                     <i class="bi bi-house-door-fill"></i>
                 </a>
@@ -55,11 +62,21 @@
                 <div class="ps-lg-2 ms-lg-2 cl-topnav-profile-wrap">
                     {% include "partials/_user_menu.html" %}
                 </div>
-                {% else %}
-                <a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="{{ url_for('auth.login') }}">Sign in</a>
-                <a class="btn btn-sm btn-primary rounded-pill px-3 cl-nav-join" href="{{ url_for('auth.register') }}">Join</a>
-                {% endif %}
             </div>
+            {% else %}
+            <ul class="navbar-nav cl-topnav-public ms-lg-auto align-items-lg-center flex-column flex-lg-row my-3 my-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.home') }}#about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.home') }}#features">Features</a>
+                </li>
+            </ul>
+            <div class="d-flex flex-column flex-sm-row flex-lg-row align-items-stretch align-items-lg-center gap-2 ms-lg-2">
+                <a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="{{ url_for('auth.login') }}">Login</a>
+                <a class="btn btn-sm btn-primary rounded-pill px-3 cl-nav-join" href="{{ url_for('auth.register') }}">Register</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </header>

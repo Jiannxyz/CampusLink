@@ -1,0 +1,167 @@
+/* Layout primitives + landing page structure */
+
+body.cl-landing .campus-flash-stack {
+    padding-left: var(--cl-space-4);
+    padding-right: var(--cl-space-4);
+}
+
+.cl-landing {
+    --cl-landing-max: 72rem;
+}
+
+body.cl-landing .campus-main--topnav {
+    background: transparent;
+}
+
+.cl-landing-main {
+    background: linear-gradient(180deg, #f8fafc 0%, var(--cl-bg) 35%, #eef2ff 100%);
+}
+
+.cl-landing-section {
+    padding-top: var(--cl-space-16);
+    padding-bottom: var(--cl-space-16);
+}
+
+@media (max-width: 767.98px) {
+    .cl-landing-section {
+        padding-top: var(--cl-space-10);
+        padding-bottom: var(--cl-space-10);
+    }
+}
+
+.cl-landing-container {
+    width: 100%;
+    max-width: var(--cl-landing-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--cl-space-4);
+    padding-right: var(--cl-space-4);
+}
+
+.cl-landing-hero {
+    position: relative;
+    min-height: min(88vh, 52rem);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.cl-landing-hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, #1e1b4b 0%, #312e81 38%, #4f46e5 72%, #7c3aed 100%);
+}
+
+.cl-landing-hero-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+    background-size: 56px 56px;
+}
+
+.cl-landing-hero-blobs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.cl-landing-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(56px);
+    opacity: 0.45;
+}
+
+.cl-landing-blob--1 {
+    width: min(48vw, 420px);
+    height: min(48vw, 420px);
+    background: rgba(167, 139, 250, 0.7);
+    top: -10%;
+    right: -5%;
+}
+
+.cl-landing-blob--2 {
+    width: min(40vw, 360px);
+    height: min(40vw, 360px);
+    background: rgba(56, 189, 248, 0.35);
+    bottom: -5%;
+    left: -8%;
+}
+
+.cl-landing-blob--3 {
+    width: min(32vw, 280px);
+    height: min(32vw, 280px);
+    background: rgba(244, 114, 182, 0.25);
+    top: 40%;
+    left: 30%;
+}
+
+.cl-landing-hero-inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: var(--cl-landing-max);
+    margin: 0 auto;
+    padding: var(--cl-space-12) var(--cl-space-4);
+}
+
+.cl-landing-hero-visual {
+    position: relative;
+    min-height: 280px;
+}
+
+.cl-landing-hero-card {
+    position: absolute;
+    border-radius: var(--cl-radius-lg);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.cl-landing-hero-card--a {
+    width: 72%;
+    max-width: 280px;
+    height: 140px;
+    top: 8%;
+    right: 4%;
+    transform: rotate(-4deg);
+}
+
+.cl-landing-hero-card--b {
+    width: 58%;
+    max-width: 220px;
+    height: 100px;
+    bottom: 12%;
+    left: 0;
+    transform: rotate(5deg);
+}
+
+.cl-landing-footer {
+    border-top: 1px solid var(--cl-border);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* Guest navbar: horizontal public links */
+.cl-topnav-public {
+    gap: var(--cl-space-1);
+}
+
+.cl-topnav-public .nav-link {
+    color: var(--cl-text-muted);
+    font-weight: 600;
+    font-size: var(--cl-font-sm);
+    padding: var(--cl-space-2) var(--cl-space-3);
+    border-radius: var(--cl-radius-pill);
+    transition: background var(--cl-transition), color var(--cl-transition);
+}
+
+.cl-topnav-public .nav-link:hover,
+.cl-topnav-public .nav-link:focus {
+    color: var(--cl-primary);
+    background: rgba(79, 70, 229, 0.08);
+}

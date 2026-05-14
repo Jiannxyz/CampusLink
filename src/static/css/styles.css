@@ -1,33 +1,12 @@
-/* =============================================================================
-   CampusLink — design tokens (Bootstrap 5 compatible)
-   Palette: primary #4F46E5, accent #7C3AED, bg #F5F7FB, sidebar #111827, cards #FFF
-   ============================================================================= */
+@import url("variables.css");
+@import url("layout.css");
+@import url("components.css");
+@import url("animations.css");
 
-:root {
-    --cl-primary: #4f46e5;
-    --cl-primary-rgb: 79, 70, 229;
-    --cl-primary-dark: #4338ca;
-    --cl-accent: #7c3aed;
-    --cl-accent-rgb: 124, 58, 237;
-    --cl-bg: #f5f7fb;
-    --cl-sidebar: #111827;
-    --cl-sidebar-hover: rgba(255, 255, 255, 0.06);
-    --cl-card: #ffffff;
-    --cl-text: #1e293b;
-    --cl-text-muted: #64748b;
-    --cl-border: rgba(15, 23, 42, 0.08);
-    --cl-radius: 1rem;
-    --cl-radius-sm: 0.75rem;
-    --cl-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
-    --cl-shadow-hover: 0 4px 6px rgba(15, 23, 42, 0.05), 0 12px 28px rgba(79, 70, 229, 0.08);
-    --cl-transition: 0.2s ease;
-    --cl-topnav-h: 3.75rem;
-    --bs-primary: #4f46e5;
-    --bs-primary-rgb: 79, 70, 229;
-    --bs-link-color: #4f46e5;
-    --bs-link-hover-color: #4338ca;
-    --bs-focus-ring-color: rgba(79, 70, 229, 0.35);
-}
+/* =============================================================================
+   CampusLink — legacy application styles (Bootstrap 5 compatible)
+   New tokens: see variables.css | Landing layout: layout.css + components.css
+   ============================================================================= */
 
 /* ----------------------------------------------------------------------------- layout */
 .campus-body {

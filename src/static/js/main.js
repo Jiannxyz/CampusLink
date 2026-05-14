@@ -2,6 +2,19 @@
 (function () {
   "use strict";
 
+  var nav = document.querySelector("header.cl-topnav");
+  if (nav) {
+    var onScroll = function () {
+      if (window.scrollY > 12) {
+        nav.classList.add("cl-topnav--dense");
+      } else {
+        nav.classList.remove("cl-topnav--dense");
+      }
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
   var sidebar = document.getElementById("appSidebar");
   if (!sidebar || typeof bootstrap === "undefined") {
     return;

@@ -1,0 +1,138 @@
+/* Reusable UI components (landing + shared patterns) */
+
+.cl-landing-badge {
+    display: inline-block;
+    font-size: var(--cl-font-xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--cl-radius-pill);
+    padding: var(--cl-space-2) var(--cl-space-4);
+}
+
+.cl-landing-badge--on-light {
+    color: var(--cl-primary-dark);
+    border-color: rgba(79, 70, 229, 0.2);
+    background: rgba(79, 70, 229, 0.08);
+}
+
+.cl-landing-hero h1 {
+    font-size: var(--cl-font-display);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: #fff;
+}
+
+.cl-landing-hero .lead {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 36rem;
+}
+
+.cl-btn-cta {
+    border-radius: var(--cl-radius-pill);
+    font-weight: 700;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    transition: transform var(--cl-duration) var(--cl-ease-out), box-shadow var(--cl-duration) var(--cl-ease-out);
+}
+
+.cl-btn-cta-primary {
+    background: #fff;
+    color: var(--cl-primary-dark);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+}
+
+.cl-btn-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+    color: var(--cl-primary-dark);
+}
+
+.cl-btn-cta-ghost {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.cl-btn-cta-ghost:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.cl-landing-feature-card {
+    height: 100%;
+    border-radius: var(--cl-radius-lg);
+    border: 1px solid var(--cl-border);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--cl-shadow);
+    padding: var(--cl-space-6);
+    transition: transform var(--cl-duration) var(--cl-ease-out), box-shadow var(--cl-duration) var(--cl-ease-out);
+}
+
+.cl-landing-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cl-shadow-hover);
+}
+
+.cl-landing-feature-ico {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--cl-radius-sm);
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--cl-primary);
+    font-size: 1.25rem;
+    margin-bottom: var(--cl-space-4);
+}
+
+.cl-landing-creator-card {
+    border-radius: var(--cl-radius-lg);
+    border: 1px solid var(--cl-border);
+    background: var(--cl-card);
+    box-shadow: var(--cl-shadow);
+    padding: var(--cl-space-6);
+    text-align: center;
+    height: 100%;
+    transition: transform var(--cl-duration) var(--cl-ease-out), box-shadow var(--cl-duration) var(--cl-ease-out);
+}
+
+.cl-landing-creator-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cl-shadow-hover);
+}
+
+.cl-landing-creator-avatar {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto var(--cl-space-4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--cl-primary), var(--cl-accent));
+}
+
+.cl-landing-glass-panel {
+    border-radius: var(--cl-radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--cl-shadow);
+}
+
+.cl-landing-meta {
+    font-size: var(--cl-font-sm);
+    color: var(--cl-text-muted);
+}

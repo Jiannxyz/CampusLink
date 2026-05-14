@@ -1,0 +1,63 @@
+/* CampusLink design tokens — load before other app styles */
+:root {
+    /* Brand */
+    --cl-primary: #4f46e5;
+    --cl-primary-rgb: 79, 70, 229;
+    --cl-primary-dark: #4338ca;
+    --cl-accent: #7c3aed;
+    --cl-accent-rgb: 124, 58, 237;
+    --cl-bg: #f5f7fb;
+    --cl-sidebar: #111827;
+    --cl-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --cl-card: #ffffff;
+    --cl-text: #1e293b;
+    --cl-text-muted: #64748b;
+    --cl-border: rgba(15, 23, 42, 0.08);
+    /* Radius */
+    --cl-radius: 1rem;
+    --cl-radius-sm: 0.75rem;
+    --cl-radius-lg: 1.25rem;
+    --cl-radius-pill: 9999px;
+    /* Shadows */
+    --cl-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+    --cl-shadow-hover: 0 4px 6px rgba(15, 23, 42, 0.05), 0 12px 28px rgba(79, 70, 229, 0.08);
+    --cl-shadow-lg: 0 24px 48px rgba(15, 23, 42, 0.12);
+    /* Motion */
+    --cl-transition: 0.2s ease;
+    --cl-duration-fast: 0.15s;
+    --cl-duration: 0.22s;
+    --cl-duration-slow: 0.35s;
+    --cl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Layout */
+    --cl-topnav-h: 3.75rem;
+    --cl-container-max: 72rem;
+    /* Spacing scale (rem) */
+    --cl-space-1: 0.25rem;
+    --cl-space-2: 0.5rem;
+    --cl-space-3: 0.75rem;
+    --cl-space-4: 1rem;
+    --cl-space-5: 1.25rem;
+    --cl-space-6: 1.5rem;
+    --cl-space-8: 2rem;
+    --cl-space-10: 2.5rem;
+    --cl-space-12: 3rem;
+    --cl-space-16: 4rem;
+    /* Typography scale */
+    --cl-font-xs: 0.75rem;
+    --cl-font-sm: 0.875rem;
+    --cl-font-base: 1rem;
+    --cl-font-lg: 1.125rem;
+    --cl-font-xl: 1.25rem;
+    --cl-font-2xl: 1.5rem;
+    --cl-font-display: clamp(2rem, 4vw + 1rem, 3.25rem);
+    /* Z-index */
+    --cl-z-dropdown: 1060;
+    --cl-z-navbar: 1050;
+    --cl-z-modal: 1080;
+    /* Bootstrap bridge */
+    --bs-primary: #4f46e5;
+    --bs-primary-rgb: 79, 70, 229;
+    --bs-link-color: #4f46e5;
+    --bs-link-hover-color: #4338ca;
+    --bs-focus-ring-color: rgba(79, 70, 229, 0.35);
+}

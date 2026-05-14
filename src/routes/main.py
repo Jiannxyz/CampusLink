@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, g, redirect, render_template, url_for
 
 from utils.auth_helpers import login_required
 from utils.db import db_cursor
@@ -8,6 +8,8 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def home():
+    if getattr(g, "current_user", None):
+        return redirect(url_for("posts.feed"))
     return render_template("index.html")
 
 
