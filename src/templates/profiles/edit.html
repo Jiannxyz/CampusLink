@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% import "macros/avatar.html" as av %}
+
+{% block title %}Edit profile | CampusLink{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('profiles.profile_view', username=user_row.username) }}">Profile</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ol>
+        </nav>
+
+        <h1 class="h3 fw-bold mb-4">Edit profile</h1>
+
+        <form method="post" action="{{ url_for('profiles.profile_edit') }}" enctype="multipart/form-data" class="campus-form" id="profileEditForm">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="cl-card border-0 p-4 mb-4">
+                        <h2 class="h6 fw-bold mb-3">Photos</h2>
+                        <label class="form-label small text-muted">Profile photo</label>
+                        <div class="mb-2">{{ av.avatar_circle(user_row, 96) }}</div>
+                        <input type="file" class="form-control form-control-sm mb-2" name="profile_photo" accept="image/png,image/jpeg,image/webp,image/gif" id="profilePhotoInput">
+                        <img id="profilePhotoPreview" class="img-fluid rounded-3 border d-none mb-2" alt="Preview">
+                        <div class="form-check small">
+                            <input class="form-check-input" type="checkbox" value="1" name="remove_profile_photo" id="removeProfilePhoto">
+                            <label class="form-check-label" for="removeProfilePhoto">Remove current photo</label>
+                        </div>
+                        <hr class="my-3">
+                        <label class="form-label small text-muted">Cover image</label>
+                        <div class="profile-edit-cover-preview rounded-3 border mb-2 ratio ratio-21x9 overflow-hidden bg-light" id="coverPreviewWrap">
+                            {% set cp = user_row.get('cover_image_path') %}
+                            {% if cp %}
+                                {% if cp.startswith('http') %}
+                                <img src="{{ cp }}" alt="" class="object-fit-cover w-100 h-100" id="coverCurrent">
+                                {% else %}
+                                <img src="{{ url_for('static', filename=cp) }}" alt="" class="object-fit-cover w-100 h-100" id="coverCurrent">
+                                {% endif %}
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center text-muted small h-100" id="coverPlaceholder">No cover</div>
+                            {% endif %}
+                            <img id="coverPhotoPreview" class="object-fit-cover w-100 h-100 d-none" alt="Preview">
+                        </div>
+                        <input type="file" class="form-control form-control-sm mb-2" name="cover_photo" accept="image/png,image/jpeg,image/webp,image/gif" id="coverPhotoInput">
+                        <div class="form-check small">
+                            <input class="form-check-input" type="checkbox" value="1" name="remove_cover_photo" id="removeCoverPhoto">
+                            <label class="form-check-label" for="removeCoverPhoto">Remove cover</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="cl-card border-0 p-4 mb-4">
+                        <h2 class="h6 fw-bold mb-3">Basic info</h2>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="first_name">First name</label>
+                                <input class="form-control" id="first_name" name="first_name" value="{{ user_row.first_name }}" required maxlength="80">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="last_name">Last name</label>
+                                <input class="form-control" id="last_name" name="last_name" value="{{ user_row.last_name }}" required maxlength="80">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="username">Username</label>
+                                <input class="form-control" id="username" name="username" value="{{ user_row.username }}" required pattern="[a-zA-Z0-9_]+" minlength="3" maxlength="50">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="email">Email</label>
+                                <input class="form-control" type="email" id="email" name="email" value="{{ user_row.email }}" required maxlength="120">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="school_id">School</label>
+                                <select class="form-select" id="school_id" name="school_id" required>
+                                    {% for s in schools %}
+                                    <option value="{{ s.school_id }}" {% if s.school_id == user_row.school_id %}selected{% endif %}>{{ s.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="bio">Bio</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="4" maxlength="300" placeholder="Tell your campus about you…">{{ user_row.bio or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cl-card border-0 p-4 mb-4">
+                        <h2 class="h6 fw-bold mb-3">Social links</h2>
+                        <p class="small text-muted mb-3">Full URLs including <code>https://</code></p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="social_link_website">Website</label>
+                                <input class="form-control" id="social_link_website" name="social_link_website" value="{{ user_row.get('social_link_website', '') or '' }}" maxlength="300" placeholder="https://…">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="social_link_twitter">Twitter / X</label>
+                                <input class="form-control" id="social_link_twitter" name="social_link_twitter" value="{{ user_row.get('social_link_twitter', '') or '' }}" maxlength="200" placeholder="https://x.com/…">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="social_link_linkedin">LinkedIn</label>
+                                <input class="form-control" id="social_link_linkedin" name="social_link_linkedin" value="{{ user_row.get('social_link_linkedin', '') or '' }}" maxlength="300" placeholder="https://linkedin.com/in/…">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cl-card border-0 p-4 mb-4">
+                        <h2 class="h6 fw-bold mb-3">Change password</h2>
+                        <p class="small text-muted mb-3">Leave blank to keep your current password.</p>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="current_password">Current password</label>
+                                <input class="form-control" type="password" id="current_password" name="current_password" autocomplete="current-password">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="new_password">New password</label>
+                                <input class="form-control" type="password" id="new_password" name="new_password" autocomplete="new-password" minlength="8">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="confirm_password">Confirm new password</label>
+                                <input class="form-control" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Save changes</button>
+                        <a class="btn btn-outline-secondary" href="{{ url_for('profiles.profile_view', username=user_row.username) }}">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile_edit.js') }}"></script>
+{% endblock %}

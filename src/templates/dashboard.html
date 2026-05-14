@@ -18,7 +18,8 @@
                     Use the sidebar to move around the app. Protected pages ask visitors to sign in first.
                 </p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a class="btn btn-primary px-4" href="{{ url_for('posts.feed') }}">Campus feed</a>
+                    <a class="btn btn-primary px-4" href="{{ url_for('profiles.profile_view', username=current_user.username) }}">My profile</a>
+                    <a class="btn btn-outline-primary px-4" href="{{ url_for('posts.feed') }}">Campus feed</a>
                     <a class="btn btn-outline-primary" href="{{ url_for('posts.create_post') }}">Write a post</a>
                     <a class="btn btn-outline-secondary" href="{{ url_for('events.upcoming') }}">Browse events</a>
                 </div>

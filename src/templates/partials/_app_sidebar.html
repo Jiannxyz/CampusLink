@@ -7,7 +7,7 @@
 {% set is_about = ep == 'main.about' %}
 {% set is_dashboard = ep == 'main.dashboard' %}
 {% set is_schools = ep and ep.startswith('schools.') %}
-{% set is_admin = ep and ep.startswith('admin.') %}
+{% set is_profile = ep and ep.startswith('profiles.') %}
 
 <div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none py-3">
     <span class="h6 mb-0 text-white fw-semibold">CampusLink</span>
@@ -41,6 +41,9 @@
         <div class="campus-sidenav-divider my-2"></div>
         <a class="campus-sidenav-link{% if is_dashboard %} active{% endif %}" href="{{ url_for('main.dashboard') }}">
             <span class="campus-sidenav-icon" aria-hidden="true">☺</span> Dashboard
+        </a>
+        <a class="campus-sidenav-link{% if is_profile %} active{% endif %}" href="{{ url_for('profiles.profile_view', username=current_user.username) }}">
+            <span class="campus-sidenav-icon" aria-hidden="true">◎</span> Profile
         </a>
         {% if current_user.role == 'admin' %}
         <a class="campus-sidenav-link{% if is_schools %} active{% endif %}" href="{{ url_for('schools.list_schools') }}">

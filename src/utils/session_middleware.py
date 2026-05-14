@@ -1,6 +1,12 @@
+import time
+
 from flask import g, session
 
 from utils.auth_helpers import fetch_user_by_id
+from utils.db import db_cursor
+
+_LAST_SEEN_SESSION_KEY = "_profile_last_seen_bump"
+_LAST_SEEN_INTERVAL_SEC = 120
 
 
 def init_session_middleware(app):
@@ -13,9 +19,30 @@ def init_session_middleware(app):
         user = fetch_user_by_id(uid)
         if user and user.get("account_status") == "active":
             g.current_user = user
+            _maybe_bump_last_seen(int(uid))
         else:
             session.pop("user_id", None)
 
     @app.context_processor
     def inject_current_user():
         return {"current_user": getattr(g, "current_user", None)}
+
+
+def _maybe_bump_last_seen(user_id):
+    now = time.time()
+    last = session.get(_LAST_SEEN_SESSION_KEY, 0)
+    if now - last < _LAST_SEEN_INTERVAL_SEC:
+        return
+    with db_cursor() as pair:
+        if pair is None:
+            return
+        conn, cur = pair
+        try:
+            cur.execute(
+                "UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE user_id = %s",
+                (user_id,),
+            )
+            conn.commit()
+        except Exception:
+            conn.rollback()
+    session[_LAST_SEEN_SESSION_KEY] = now

@@ -56,6 +56,20 @@ If **`event_rsvps`** is missing (needed for RSVPs), run:
 - `mysql -u root -p < database/migrations/003_event_rsvps.sql`  
   (edit the `USE …` line first.)
 
+For **profiles** (cover image, social links, `last_seen_at`, saved events), run:
+
+- `mysql -u root -p < database/migrations/004_user_profile_social_saved.sql`  
+  (edit the `USE …` line to your database name first.) New installs from `database/schema.sql` already include these tables/columns.
+
+## Profiles & settings
+
+- **Public profile** (`/u/<username>`): cover banner, avatar (or initials), bio, school, join date, stats (posts, followers, following, events joined), and tabs for **Posts**, **Events**, **Organizations**, and **Saved** (saved tab is only visible to you on your own profile).
+- **Edit profile** (`/profile/edit`, signed in): update name, username, email, school, bio, optional **profile** and **cover** images (stored under `static/uploads/profiles/`), social URLs, and optional password change (requires current password). Client-side image previews: `static/js/profile_edit.js`.
+- **Settings** (`/settings`): account overview and links into profile editing.
+- **Saved events** (`/saved/events` and from the account menu): bookmark published events from the event detail page (**Save event**). Uses table **`user_saved_events`**.
+- **Navbar menu**: avatar dropdown with links to profile, edit, settings, school-scoped feed, saved events, and log out (glass-style dropdown in `styles.css`).
+- **Presence**: `last_seen_at` is bumped periodically while browsing (see `utils/session_middleware.py`); profiles show a green **online** dot if active within the last few minutes.
+
 ## Campus feed & posts
 
 - **Feed** (`/feed`): paginated posts with optional **school filter**. Guests see **public** posts only; signed-in users also see **school-only** posts for their school and their own **private** / **followers-only** posts (followers-only is author-only until follow-based sharing is implemented).

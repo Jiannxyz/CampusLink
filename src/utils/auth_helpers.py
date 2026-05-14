@@ -15,7 +15,11 @@ def fetch_user_by_id(user_id):
         cur.execute(
             """
             SELECT user_id, school_id, username, email,
-                   first_name, last_name, role, account_status
+                   first_name, last_name, role, account_status,
+                   bio, profile_image_url, cover_image_path,
+                   last_seen_at,
+                   social_link_website, social_link_twitter, social_link_linkedin,
+                   created_at
             FROM users
             WHERE user_id = %s
             """,

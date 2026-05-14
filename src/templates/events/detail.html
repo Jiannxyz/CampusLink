@@ -84,6 +84,20 @@
                         {% endif %}
                     </div>
                 </div>
+                {% if event.event_status == 'published' and current_user %}
+                <div class="card cl-card border-0 mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="h6 text-uppercase fw-bold text-muted mb-3 letter-spacing-wide">Save</h2>
+                        <form method="post" action="{{ url_for('profiles.toggle_save_event', event_id=event.event_id) }}">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-sm w-100 {% if event_saved %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                <i class="bi bi-bookmark{% if event_saved %}-fill{% endif %} me-1"></i>
+                                {% if event_saved %}Saved{% else %}Save event{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
                 {% if can_manage %}
                 <div class="card cl-card border-0">
                     <div class="card-body p-4 d-grid gap-2">

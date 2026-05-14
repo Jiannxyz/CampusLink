@@ -347,8 +347,24 @@ def event_detail(event_id):
         return redirect(url_for("events.upcoming"))
 
     rsvp_status = None
+    event_saved = False
     if g.current_user:
-        rsvp_status = _user_rsvp(event_id, int(g.current_user["user_id"]))
+        uid = int(g.current_user["user_id"])
+        rsvp_status = _user_rsvp(event_id, uid)
+        try:
+            with db_cursor() as pair:
+                if pair:
+                    _, cur = pair
+                    cur.execute(
+                        """
+                        SELECT 1 FROM user_saved_events
+                        WHERE user_id = %s AND event_id = %s
+                        """,
+                        (uid, event_id),
+                    )
+                    event_saved = cur.fetchone() is not None
+        except Exception:
+            event_saved = False
 
     st = row.get("starts_at")
     allow_rsvp = (
@@ -363,6 +379,7 @@ def event_detail(event_id):
         rsvp_status=rsvp_status,
         can_manage=_can_manage_event(row),
         allow_rsvp=allow_rsvp,
+        event_saved=event_saved,
     )
 
 

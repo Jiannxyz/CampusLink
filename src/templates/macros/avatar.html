@@ -1,0 +1,17 @@
+{# Reusable avatar: image URL or initials fallback. Expects user dict with first_name, last_name, profile_image_url #}
+{% macro avatar_circle(user, size=40, extra_class='') %}
+{% set img = user.profile_image_url if user else None %}
+{% set fn = (user.first_name or '?')[0] if user else '?' %}
+{% set ln = (user.last_name or '')[0] if user else '' %}
+<div class="cl-avatar {{ extra_class }}" style="--cl-avatar-size: {{ size }}px;">
+    {% if img %}
+        {% if img.startswith('http') %}
+        <img src="{{ img }}" alt="" width="{{ size }}" height="{{ size }}" class="cl-avatar-img rounded-circle">
+        {% else %}
+        <img src="{{ url_for('static', filename=img) }}" alt="" width="{{ size }}" height="{{ size }}" class="cl-avatar-img rounded-circle">
+        {% endif %}
+    {% else %}
+    <span class="cl-avatar-initials rounded-circle">{{ (fn ~ ln)|upper }}</span>
+    {% endif %}
+</div>
+{% endmacro %}

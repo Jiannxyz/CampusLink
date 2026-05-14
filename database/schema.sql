@@ -37,7 +37,12 @@ CREATE TABLE IF NOT EXISTS users (
     account_status ENUM('pending', 'active', 'suspended', 'deactivated') NOT NULL DEFAULT 'pending',
     bio VARCHAR(300) NULL,
     profile_image_url VARCHAR(255) NULL,
+    cover_image_path VARCHAR(500) NULL,
     last_login_at TIMESTAMP NULL,
+    last_seen_at TIMESTAMP NULL,
+    social_link_website VARCHAR(300) NULL,
+    social_link_twitter VARCHAR(200) NULL,
+    social_link_linkedin VARCHAR(300) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT uq_users_username UNIQUE (username),
@@ -241,6 +246,28 @@ CREATE TABLE IF NOT EXISTS event_rsvps (
         ON DELETE CASCADE,
     INDEX idx_event_rsvps_user (user_id),
     INDEX idx_event_rsvps_status (event_id, status)
+) ENGINE=InnoDB;
+
+-- -----------------------------
+-- 7c) user saved events (bookmarks)
+-- -----------------------------
+CREATE TABLE IF NOT EXISTS user_saved_events (
+    user_id BIGINT UNSIGNED NOT NULL,
+    event_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, event_id),
+    CONSTRAINT fk_user_saved_events_user
+        FOREIGN KEY (user_id)
+        REFERENCES users (user_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_user_saved_events_event
+        FOREIGN KEY (event_id)
+        REFERENCES events (event_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    INDEX idx_user_saved_events_user (user_id),
+    INDEX idx_user_saved_events_event (event_id)
 ) ENGINE=InnoDB;
 
 -- -----------------------------
