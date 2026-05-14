@@ -6,6 +6,7 @@ from flask import (
     current_app,
     flash,
     g,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -131,6 +132,78 @@ def fetch_profile_stats(cur, user_id):
     except Exception:
         out["events_joined"] = 0
     return out
+
+
+def _wants_json_response():
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return True
+    best = request.accept_mimetypes.best_match(["application/json", "text/html"])
+    return best == "application/json"
+
+
+def fetch_follow_state(cur, follower_id, following_id):
+    if int(follower_id) == int(following_id):
+        return None
+    cur.execute(
+        """
+        SELECT follow_status FROM follows
+        WHERE follower_user_id = %s AND following_user_id = %s
+        """,
+        (follower_id, following_id),
+    )
+    row = cur.fetchone()
+    return row["follow_status"] if row else None
+
+
+def fetch_mutual_followers_count(cur, user_a, user_b):
+    cur.execute(
+        """
+        SELECT COUNT(DISTINCT f1.follower_user_id) AS c
+        FROM follows f1
+        INNER JOIN follows f2 ON f1.follower_user_id = f2.follower_user_id
+        WHERE f1.following_user_id = %s
+          AND f2.following_user_id = %s
+          AND f1.follow_status = 'accepted'
+          AND f2.follow_status = 'accepted'
+        """,
+        (user_a, user_b),
+    )
+    row = cur.fetchone()
+    return int(row["c"]) if row else 0
+
+
+def fetch_followers_preview(cur, user_id, limit=18):
+    cur.execute(
+        """
+        SELECT u.user_id, u.username, u.first_name, u.last_name, u.profile_image_url
+        FROM follows f
+        INNER JOIN users u ON u.user_id = f.follower_user_id
+        WHERE f.following_user_id = %s
+          AND f.follow_status = 'accepted'
+          AND u.account_status = 'active'
+        ORDER BY f.created_at DESC
+        LIMIT %s
+        """,
+        (user_id, limit),
+    )
+    return cur.fetchall()
+
+
+def fetch_following_preview(cur, user_id, limit=18):
+    cur.execute(
+        """
+        SELECT u.user_id, u.username, u.first_name, u.last_name, u.profile_image_url
+        FROM follows f
+        INNER JOIN users u ON u.user_id = f.following_user_id
+        WHERE f.follower_user_id = %s
+          AND f.follow_status = 'accepted'
+          AND u.account_status = 'active'
+        ORDER BY f.created_at DESC
+        LIMIT %s
+        """,
+        (user_id, limit),
+    )
+    return cur.fetchall()
 
 
 def _fetch_profile_posts(cur, profile_user_id, viewer):
@@ -259,6 +332,94 @@ def profile_me():
     return redirect(url_for("profiles.profile_by_id", user_id=int(u["user_id"])))
 
 
+@profiles_bp.route("/profile/<int:user_id>/follow", methods=["POST"])
+@login_required
+def profile_follow(user_id):
+    viewer_id = int(g.current_user["user_id"])
+    back = request.referrer or url_for("profiles.profile_by_id", user_id=user_id)
+    if viewer_id == user_id:
+        if _wants_json_response():
+            return jsonify({"ok": False, "error": "You cannot follow yourself."}), 400
+        flash("You cannot follow yourself.", "warning")
+        return redirect(back)
+
+    with db_cursor() as pair:
+        if pair is None:
+            if _wants_json_response():
+                return jsonify({"ok": False, "error": "Database unavailable."}), 503
+            flash("Cannot reach the database.", "danger")
+            return redirect(back)
+        conn, cur = pair
+        cur.execute(
+            "SELECT 1 FROM users WHERE user_id = %s AND account_status = 'active'",
+            (user_id,),
+        )
+        if cur.fetchone() is None:
+            if _wants_json_response():
+                return jsonify({"ok": False, "error": "User not found."}), 404
+            flash("User not found.", "warning")
+            return redirect(back)
+        cur.execute(
+            """
+            INSERT INTO follows (follower_user_id, following_user_id, follow_status)
+            VALUES (%s, %s, 'accepted')
+            ON DUPLICATE KEY UPDATE follow_status = 'accepted', updated_at = CURRENT_TIMESTAMP
+            """,
+            (viewer_id, user_id),
+        )
+        conn.commit()
+        stats = fetch_profile_stats(cur, user_id)
+
+    if _wants_json_response():
+        return jsonify(
+            {
+                "ok": True,
+                "following": True,
+                "follow_state": "accepted",
+                "followers": stats["followers"],
+            }
+        )
+    flash("You are now following this user.", "success")
+    return redirect(back)
+
+
+@profiles_bp.route("/profile/<int:user_id>/unfollow", methods=["POST"])
+@login_required
+def profile_unfollow(user_id):
+    viewer_id = int(g.current_user["user_id"])
+    back = request.referrer or url_for("profiles.profile_by_id", user_id=user_id)
+    if viewer_id == user_id:
+        if _wants_json_response():
+            return jsonify({"ok": False, "error": "Invalid request."}), 400
+        return redirect(back)
+
+    with db_cursor() as pair:
+        if pair is None:
+            if _wants_json_response():
+                return jsonify({"ok": False, "error": "Database unavailable."}), 503
+            flash("Cannot reach the database.", "danger")
+            return redirect(back)
+        conn, cur = pair
+        cur.execute(
+            "DELETE FROM follows WHERE follower_user_id = %s AND following_user_id = %s",
+            (viewer_id, user_id),
+        )
+        conn.commit()
+        stats = fetch_profile_stats(cur, user_id)
+
+    if _wants_json_response():
+        return jsonify(
+            {
+                "ok": True,
+                "following": False,
+                "follow_state": None,
+                "followers": stats["followers"],
+            }
+        )
+    flash("You unfollowed this user.", "info")
+    return redirect(back)
+
+
 @profiles_bp.route("/profile/<int:user_id>")
 def profile_by_id(user_id):
     tab = (request.args.get("tab") or "posts").strip().lower()
@@ -291,6 +452,16 @@ def profile_by_id(user_id):
         orgs = _fetch_profile_orgs(cur, int(profile["user_id"]))
         saved = _fetch_saved_events(cur, int(profile["user_id"])) if is_owner else []
 
+        pid_u = int(profile["user_id"])
+        follow_state = None
+        mutual_count = 0
+        if viewer:
+            follow_state = fetch_follow_state(cur, int(viewer["user_id"]), pid_u)
+            if int(viewer["user_id"]) != pid_u:
+                mutual_count = fetch_mutual_followers_count(cur, int(viewer["user_id"]), pid_u)
+        followers_preview = fetch_followers_preview(cur, pid_u)
+        following_preview = fetch_following_preview(cur, pid_u)
+
     online = is_user_online(profile.get("last_seen_at"))
 
     return render_template(
@@ -304,6 +475,10 @@ def profile_by_id(user_id):
         saved_events=saved,
         is_owner=is_owner,
         is_online=online,
+        follow_state=follow_state,
+        mutual_count=mutual_count,
+        followers_preview=followers_preview,
+        following_preview=following_preview,
     )
 
 

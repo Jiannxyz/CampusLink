@@ -36,6 +36,7 @@
 
             {% if current_user %}
             <div class="navbar-nav ms-lg-auto flex-row flex-wrap align-items-center justify-content-end gap-1 gap-sm-2 cl-topnav-actions">
+                {% include "partials/_theme_toggle.html" %}
                 <a class="cl-nav-icon-btn {% if ep == 'posts.feed' %}active{% endif %}" href="{{ url_for('posts.feed') }}" title="Home feed" aria-label="Home feed">
                     <i class="bi bi-house-door-fill"></i>
                 </a>
@@ -73,6 +74,7 @@
                 </li>
             </ul>
             <div class="d-flex flex-column flex-sm-row flex-lg-row align-items-stretch align-items-lg-center gap-2 ms-lg-2">
+                {% include "partials/_theme_toggle.html" %}
                 <a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="{{ url_for('auth.login') }}">Login</a>
                 <a class="btn btn-sm btn-primary rounded-pill px-3 cl-nav-join" href="{{ url_for('auth.register') }}">Register</a>
             </div>

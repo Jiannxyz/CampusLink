@@ -5,12 +5,12 @@
 {% block container_class %}container-fluid feed-page{% endblock %}
 
 {% block content %}
-<div class="row g-4 g-xl-0 justify-content-center feed-layout mx-auto">
-    <aside class="col-12 col-xl-3 col-xxl-2 d-none d-xl-block feed-col-left">
+<div class="row justify-content-center feed-layout mx-auto align-items-start gy-4 gx-0 gx-xl-4 gx-xxl-5">
+    <aside class="col-12 col-xl-3 col-xxl-2 d-none d-xl-block feed-col-left pe-xl-2">
         {% include "feed/_rail_left.html" %}
     </aside>
 
-    <div class="col-12 col-lg-11 col-xl-6 col-xxl-6 feed-col-main">
+    <div class="col-12 col-lg-11 col-xl-6 col-xxl-6 feed-col-main px-xl-3">
         <header class="mb-4 px-1">
             <h1 class="h4 fw-bold mb-1">Campus feed</h1>
             <p class="text-muted small mb-0">Updates from your network — explore by school or share your own story.</p>
@@ -70,7 +70,7 @@
         {% endif %}
     </div>
 
-    <aside class="col-12 col-lg-11 col-xl-3 col-xxl-3 mx-auto mx-xl-0 feed-col-right">
+    <aside class="col-12 col-lg-11 col-xl-3 col-xxl-3 mx-auto mx-xl-0 feed-col-right ps-xl-2">
         <div class="d-xl-none">
             <button class="btn btn-outline-secondary w-100 rounded-pill mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#feedMobileSidebar" aria-expanded="false">
                 <i class="bi bi-layout-three-columns me-2"></i>Discover sidebar

@@ -61,3 +61,26 @@
     --bs-link-hover-color: #4338ca;
     --bs-focus-ring-color: rgba(79, 70, 229, 0.35);
 }
+
+/* Dark theme — toggled via <html data-bs-theme="dark"> + localStorage */
+[data-bs-theme="dark"] {
+    color-scheme: dark;
+    --cl-bg: #0c0f14;
+    --cl-card: #151a22;
+    --cl-sidebar: #0a0d12;
+    --cl-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --cl-text: #e8edf5;
+    --cl-text-muted: #94a3b8;
+    --cl-border: rgba(148, 163, 184, 0.12);
+    --cl-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --cl-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(79, 70, 229, 0.12);
+    --cl-shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.5);
+    --bs-body-bg: var(--cl-bg);
+    --bs-body-color: var(--cl-text);
+    --bs-emphasis-color: #f1f5f9;
+    --bs-secondary-color: #94a3b8;
+    --bs-tertiary-bg: #1a1f28;
+    --bs-border-color: rgba(148, 163, 184, 0.14);
+    --bs-link-color: #a5b4fc;
+    --bs-link-hover-color: #c7d2fe;
+}

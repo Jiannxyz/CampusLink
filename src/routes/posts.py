@@ -33,6 +33,18 @@ def _normalize_image_path(raw):
     return s
 
 
+def _gallery_public_urls(paths):
+    out = []
+    for p in paths or []:
+        if not p:
+            continue
+        if isinstance(p, str) and p.startswith("http"):
+            out.append(p)
+        else:
+            out.append(url_for("static", filename=p))
+    return out
+
+
 def _can_manage_post(post_row):
     user = g.current_user
     if not user or not post_row:
@@ -156,6 +168,7 @@ def _attach_gallery_and_saved(cur, rows, viewer):
         if not gal and r.get("image_path"):
             gal = [r["image_path"]]
         r["gallery"] = gal
+        r["gallery_public_urls"] = _gallery_public_urls(gal)
         r["user_has_saved"] = pid in saved_ids if viewer else False
 
 
@@ -305,6 +318,39 @@ def _fetch_feed_sidebar(viewer):
             out["active_students"] = cur.fetchall()
         except Exception:
             pass
+        try:
+            vid = int(viewer["user_id"]) if viewer else None
+            students = out.get("active_students") or []
+            if vid is not None and students:
+                oids = [int(s["user_id"]) for s in students if int(s["user_id"]) != vid]
+                if oids:
+                    ph = ",".join(["%s"] * len(oids))
+                    cur.execute(
+                        f"""
+                        SELECT following_user_id
+                        FROM follows
+                        WHERE follower_user_id = %s
+                          AND following_user_id IN ({ph})
+                          AND follow_status = 'accepted'
+                        """,
+                        (vid, *oids),
+                    )
+                    followed = {int(r["following_user_id"]) for r in cur.fetchall()}
+                    for s in students:
+                        s["viewer_follows"] = int(s["user_id"]) in followed
+                        s["viewer_is_self"] = int(s["user_id"]) == vid
+                else:
+                    for s in students:
+                        s["viewer_follows"] = False
+                        s["viewer_is_self"] = int(s["user_id"]) == vid
+            else:
+                for s in students:
+                    s["viewer_follows"] = False
+                    s["viewer_is_self"] = False
+        except Exception:
+            for s in out.get("active_students") or []:
+                s["viewer_follows"] = False
+                s["viewer_is_self"] = False
     return out
 
 
@@ -342,6 +388,8 @@ def _enrich_posts_with_social(rows, viewer):
                 r["like_count"] = 0
                 r["user_has_liked"] = False
                 r["comments"] = []
+                r["viewer_follows_author"] = False
+                r["viewer_is_post_author"] = False
             return rows
         conn, cur = pair
 
@@ -429,11 +477,34 @@ def _enrich_posts_with_social(rows, viewer):
         c["replies"] = replies_by_parent.get(cid, [])
         by_post[int(c["post_id"])].append(c)
 
+    following_authors = set()
+    if uid is not None:
+        author_ids = list({int(r["user_id"]) for r in rows})
+        if author_ids:
+            ph_a = ",".join(["%s"] * len(author_ids))
+            with db_cursor() as pair2:
+                if pair2:
+                    _, cur2 = pair2
+                    cur2.execute(
+                        f"""
+                        SELECT following_user_id
+                        FROM follows
+                        WHERE follower_user_id = %s
+                          AND following_user_id IN ({ph_a})
+                          AND follow_status = 'accepted'
+                        """,
+                        (uid, *author_ids),
+                    )
+                    following_authors = {int(x["following_user_id"]) for x in cur2.fetchall()}
+
     for r in rows:
         pid = int(r["post_id"])
+        aid = int(r["user_id"])
         r["like_count"] = likes_map.get(pid, 0)
         r["user_has_liked"] = pid in user_liked if uid is not None else False
         r["comments"] = by_post.get(pid, [])
+        r["viewer_follows_author"] = aid in following_authors if uid is not None else False
+        r["viewer_is_post_author"] = uid is not None and aid == uid
     return rows
 
 

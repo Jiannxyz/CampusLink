@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "macros/avatar.html" as av %}
+{% from "macros/follow.html" import follow_btn %}
 
 {% block title %}@{{ profile.username }} | CampusLink{% endblock %}
 
@@ -9,9 +10,9 @@
         {% set cover = profile.get('cover_image_path') %}
         {% if cover %}
             {% if cover.startswith('http') %}
-            <img src="{{ cover }}" alt="" class="profile-cover-img w-100">
+            <img src="{{ cover }}" alt="" class="profile-cover-img w-100 cl-lightbox-img" data-cl-lightbox-src="{{ cover }}">
             {% else %}
-            <img src="{{ url_for('static', filename=cover) }}" alt="" class="profile-cover-img w-100">
+            <img src="{{ url_for('static', filename=cover) }}" alt="" class="profile-cover-img w-100 cl-lightbox-img" data-cl-lightbox-src="{{ url_for('static', filename=cover) }}">
             {% endif %}
         {% else %}
         <div class="profile-cover-placeholder w-100"></div>
@@ -23,7 +24,7 @@
         <div class="row align-items-end g-3">
             <div class="col-auto">
                 <div class="profile-avatar-wrap position-relative">
-                    {{ av.avatar_circle(profile, 112, 'profile-avatar-ring shadow') }}
+                    {{ av.avatar_circle(profile, 112, 'profile-avatar-ring shadow', lightbox=True) }}
                     {% if is_online %}
                     <span class="position-absolute bottom-0 end-0 profile-status-dot rounded-circle border border-white border-3" title="Online"></span>
                     {% else %}
@@ -34,6 +35,9 @@
             <div class="col min-w-0">
                 <h1 class="h3 fw-bold mb-1 text-truncate">{{ profile.first_name }} {{ profile.last_name }}</h1>
                 <p class="text-muted mb-2">@{{ profile.username }} · {{ profile.school_name }}</p>
+                {% if current_user and not is_owner and mutual_count %}
+                <p class="small text-muted mb-2"><i class="bi bi-people me-1"></i>{{ mutual_count }} mutual connection{% if mutual_count != 1 %}s{% endif %}</p>
+                {% endif %}
                 {% if profile.bio %}
                 <p class="mb-2 small" style="white-space: pre-wrap;">{{ profile.bio }}</p>
                 {% endif %}
@@ -50,7 +54,10 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="col-12 col-lg-auto text-lg-end">
+            <div class="col-12 col-lg-auto text-lg-end d-flex flex-column flex-lg-row align-items-lg-end gap-2 justify-content-lg-end">
+                {% if current_user and not is_owner %}
+                {{ follow_btn(profile.user_id, follow_state, compact=False) }}
+                {% endif %}
                 {% if is_owner %}
                 <a href="{{ url_for('profiles.profile_edit') }}" class="btn btn-primary px-4"><i class="bi bi-pencil-square me-1"></i>Edit profile</a>
                 {% endif %}
@@ -66,7 +73,7 @@
             </div>
             <div class="col">
                 <div class="profile-stat text-center rounded-3 py-2">
-                    <div class="fs-4 fw-bold text-primary">{{ stats.followers }}</div>
+                    <div class="fs-4 fw-bold text-primary" data-cl-follow-count="{{ profile.user_id }}">{{ stats.followers }}</div>
                     <div class="small text-muted">Followers</div>
                 </div>
             </div>
@@ -80,6 +87,43 @@
                 <div class="profile-stat text-center rounded-3 py-2">
                     <div class="fs-4 fw-bold text-primary">{{ stats.events_joined }}</div>
                     <div class="small text-muted">Events</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2 pt-2 border-top border-opacity-10">
+            <div class="col-md-6">
+                <div class="cl-card border-0 rounded-4 p-3 h-100">
+                    <h3 class="h6 fw-bold mb-3">Followers</h3>
+                    {% if followers_preview %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for u in followers_preview %}
+                        <a href="{{ url_for('profiles.profile_by_id', user_id=u.user_id) }}" class="text-decoration-none" title="@{{ u.username }}">
+                            {% set su = {'first_name': u.first_name, 'last_name': u.last_name, 'username': u.username, 'profile_image_url': u.profile_image_url} %}
+                            {{ av.avatar_circle(su, 40, "", lightbox=True) }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="small text-muted mb-0">No followers yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cl-card border-0 rounded-4 p-3 h-100">
+                    <h3 class="h6 fw-bold mb-3">Following</h3>
+                    {% if following_preview %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for u in following_preview %}
+                        <a href="{{ url_for('profiles.profile_by_id', user_id=u.user_id) }}" class="text-decoration-none" title="@{{ u.username }}">
+                            {% set su = {'first_name': u.first_name, 'last_name': u.last_name, 'username': u.username, 'profile_image_url': u.profile_image_url} %}
+                            {{ av.avatar_circle(su, 40, "", lightbox=True) }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="small text-muted mb-0">Not following anyone yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

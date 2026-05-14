@@ -1,4 +1,5 @@
 {% import "macros/avatar.html" as av %}
+{% from "macros/follow.html" import follow_btn %}
 <div class="feed-sidebar-inner sticky-top pt-1" style="top: calc(var(--cl-topnav-h, 3.5rem) + 0.75rem);">
     <div class="feed-sidebar-section cl-card border-0 shadow-sm mb-3">
         <div class="card-body p-3">
@@ -68,19 +69,24 @@
 
     <div class="feed-sidebar-section cl-card border-0 shadow-sm">
         <div class="card-body p-3">
-            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Active students</div>
+            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Suggested people</div>
             {% if sidebar.active_students %}
             <ul class="list-unstyled mb-0">
                 {% for u in sidebar.active_students %}
                 <li class="mb-2">
-                    <a href="{{ url_for('profiles.profile_by_id', user_id=u.user_id) }}" class="d-flex align-items-center gap-2 text-decoration-none feed-sidebar-student py-1 px-2 rounded-3">
+                    <div class="d-flex align-items-center gap-2 feed-suggested-user py-1 px-2 rounded-3">
+                        <a href="{{ url_for('profiles.profile_by_id', user_id=u.user_id) }}" class="d-flex align-items-center gap-2 text-decoration-none flex-grow-1 min-w-0 feed-sidebar-student">
                         {% set su = {'first_name': u.first_name, 'last_name': u.last_name, 'username': u.username, 'profile_image_url': u.profile_image_url} %}
                         {{ av.avatar_circle(su, 36, "flex-shrink-0") }}
                         <span class="min-w-0">
                             <span class="d-block small fw-semibold text-body text-truncate">{{ u.first_name }} {{ u.last_name }}</span>
                             <span class="d-block small text-muted text-truncate">@{{ u.username }}</span>
                         </span>
-                    </a>
+                        </a>
+                        {% if current_user and not u.viewer_is_self %}
+                        <span class="flex-shrink-0">{{ follow_btn(u.user_id, 'accepted' if u.viewer_follows else none, compact=True) }}</span>
+                        {% endif %}
+                    </div>
                 </li>
                 {% endfor %}
             </ul>

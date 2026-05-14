@@ -1,0 +1,17 @@
+<div class="modal fade cl-lightbox-modal" id="clLightboxModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl cl-lightbox-dialog">
+        <div class="modal-content border-0 bg-transparent shadow-none position-relative">
+            <button type="button" class="btn-close btn-close-white cl-lightbox-close position-absolute top-0 end-0 m-3 z-3 rounded-circle bg-dark bg-opacity-50 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn btn-dark btn-lg rounded-circle cl-lightbox-nav cl-lightbox-prev position-absolute start-0 top-50 translate-middle-y ms-2 z-3 d-none" aria-label="Previous image">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="btn btn-dark btn-lg rounded-circle cl-lightbox-nav cl-lightbox-next position-absolute end-0 top-50 translate-middle-y me-2 z-3 d-none" aria-label="Next image">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            <div class="modal-body d-flex align-items-center justify-content-center p-4 cl-lightbox-body">
+                <div class="cl-lightbox-loader position-absolute" aria-hidden="true"></div>
+                <img src="" alt="" class="cl-lightbox-img img-fluid rounded-3 shadow-lg" id="clLightboxImg" decoding="async">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+{# Follow / Following control — requires current_user, uses AJAX via follow.js #}
+{% macro follow_btn(user_id, follow_state, compact=False) -%}
+{% if current_user and current_user.user_id|int != user_id|int %}
+<div
+    class="cl-follow-wrap d-inline-flex align-items-center gap-1"
+    data-cl-follow-target="{{ user_id }}"
+    data-cl-follow-state="{% if follow_state == 'accepted' %}accepted{% elif follow_state == 'pending' %}pending{% else %}none{% endif %}"
+>
+    <button
+        type="button"
+        class="btn btn-sm btn-primary rounded-pill cl-follow-btn cl-follow-btn--do {% if compact %}px-2{% else %}px-3{% endif %}"
+        data-cl-follow-action="follow"
+        {% if follow_state == 'accepted' or follow_state == 'pending' %}hidden{% endif %}
+    >
+        Follow
+    </button>
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary rounded-pill cl-follow-btn cl-follow-btn--undo {% if compact %}px-2{% else %}px-3{% endif %}"
+        data-cl-follow-action="unfollow"
+        {% if follow_state != 'accepted' %}hidden{% endif %}
+    >
+        Following
+    </button>
+    <span class="badge rounded-pill text-bg-secondary cl-follow-pending {% if follow_state != 'pending' %}d-none{% endif %}">Requested</span>
+</div>
+{% endif %}
+{%- endmacro %}
