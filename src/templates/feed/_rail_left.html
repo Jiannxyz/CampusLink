@@ -1,0 +1,49 @@
+{# Left rail — desktop; mobile uses global app sidebar #}
+<div class="feed-rail-inner sticky-top pt-1" style="top: calc(var(--cl-topnav-h, 3.5rem) + 0.75rem);">
+    <div class="cl-card border-0 shadow-sm feed-rail-card mb-3">
+        <div class="card-body p-3">
+            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Feed</div>
+            <nav class="nav flex-column gap-1 feed-rail-nav">
+                <a class="nav-link rounded-3 py-2 px-3 {% if not school_filter %}active{% endif %}" href="{{ url_for('posts.feed') }}">
+                    <i class="bi bi-collection me-2"></i>All campuses
+                </a>
+                {% if current_user %}
+                <a class="nav-link rounded-3 py-2 px-3" href="{{ url_for('posts.feed', school_id=current_user.school_id) }}">
+                    <i class="bi bi-mortarboard me-2"></i>My school
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+    <div class="cl-card border-0 shadow-sm feed-rail-card mb-3">
+        <div class="card-body p-3">
+            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Shortcuts</div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary btn-sm rounded-pill text-start px-3" data-bs-toggle="collapse" data-bs-target="#feedComposerCollapse" aria-expanded="{{ 'true' if open_composer else 'false' }}">
+                    <i class="bi bi-plus-lg me-1"></i>New post
+                </button>
+                <a class="btn btn-outline-secondary btn-sm rounded-pill text-start px-3" href="{{ url_for('events.upcoming') }}">
+                    <i class="bi bi-calendar-event me-2"></i>Events
+                </a>
+                {% if current_user %}
+                <a class="btn btn-outline-secondary btn-sm rounded-pill text-start px-3" href="{{ url_for('profiles.profile_by_id', user_id=current_user.user_id) }}">
+                    <i class="bi bi-person me-2"></i>My profile
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="cl-card border-0 shadow-sm feed-rail-card d-none d-xxl-block">
+        <div class="card-body p-3">
+            <form method="get" action="{{ url_for('posts.feed') }}" class="m-0">
+                <label for="rail-school-filter" class="form-label small text-muted mb-1">Filter by school</label>
+                <select class="form-select form-select-sm" id="rail-school-filter" name="school_id" onchange="this.form.submit();">
+                    <option value="" {% if not school_filter %}selected{% endif %}>All schools</option>
+                    {% for s in schools_filter %}
+                    <option value="{{ s.school_id }}" {% if school_filter == s.school_id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+</div>

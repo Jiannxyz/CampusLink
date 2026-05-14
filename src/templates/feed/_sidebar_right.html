@@ -1,0 +1,92 @@
+{% import "macros/avatar.html" as av %}
+<div class="feed-sidebar-inner sticky-top pt-1" style="top: calc(var(--cl-topnav-h, 3.5rem) + 0.75rem);">
+    <div class="feed-sidebar-section cl-card border-0 shadow-sm mb-3">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-uppercase text-muted small fw-semibold ls-wide">Trending schools</span>
+                <i class="bi bi-fire text-warning"></i>
+            </div>
+            {% if sidebar.trending_schools %}
+            <ul class="list-unstyled mb-0 feed-sidebar-list">
+                {% for s in sidebar.trending_schools %}
+                <li>
+                    <a href="{{ url_for('schools.school_detail', school_id=s.school_id) }}" class="feed-sidebar-link d-flex justify-content-between align-items-center gap-2 py-2 px-2 rounded-3">
+                        <span class="text-truncate">{{ s.name }}</span>
+                        <span class="badge rounded-pill bg-light text-muted border">{{ s.post_count }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="small text-muted mb-0">No activity data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="feed-sidebar-section cl-card border-0 shadow-sm mb-3">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-uppercase text-muted small fw-semibold ls-wide">Upcoming events</span>
+                <a href="{{ url_for('events.upcoming') }}" class="small text-decoration-none">All</a>
+            </div>
+            {% if sidebar.upcoming_events %}
+            <ul class="list-unstyled mb-0 feed-sidebar-list">
+                {% for e in sidebar.upcoming_events %}
+                <li>
+                    <a href="{{ url_for('events.event_detail', event_id=e.event_id) }}" class="feed-sidebar-link d-block py-2 px-2 rounded-3">
+                        <span class="d-block fw-semibold text-body text-truncate">{{ e.title }}</span>
+                        <span class="small text-muted">{{ e.starts_at }} · {{ e.school_name }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="small text-muted mb-0">No upcoming events.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="feed-sidebar-section cl-card border-0 shadow-sm mb-3">
+        <div class="card-body p-3">
+            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Suggested organizations</div>
+            {% if sidebar.suggested_orgs %}
+            <ul class="list-unstyled mb-0 feed-sidebar-list">
+                {% for o in sidebar.suggested_orgs %}
+                <li>
+                    <span class="feed-sidebar-link d-block py-2 px-2 rounded-3 text-body">
+                        <span class="fw-semibold text-truncate d-block">{{ o.name }}</span>
+                        <span class="small text-muted font-monospace">{{ o.slug }}</span>
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="small text-muted mb-0">No organizations listed.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="feed-sidebar-section cl-card border-0 shadow-sm">
+        <div class="card-body p-3">
+            <div class="text-uppercase text-muted small fw-semibold mb-2 ls-wide">Active students</div>
+            {% if sidebar.active_students %}
+            <ul class="list-unstyled mb-0">
+                {% for u in sidebar.active_students %}
+                <li class="mb-2">
+                    <a href="{{ url_for('profiles.profile_by_id', user_id=u.user_id) }}" class="d-flex align-items-center gap-2 text-decoration-none feed-sidebar-student py-1 px-2 rounded-3">
+                        {% set su = {'first_name': u.first_name, 'last_name': u.last_name, 'username': u.username, 'profile_image_url': u.profile_image_url} %}
+                        {{ av.avatar_circle(su, 36, "flex-shrink-0") }}
+                        <span class="min-w-0">
+                            <span class="d-block small fw-semibold text-body text-truncate">{{ u.first_name }} {{ u.last_name }}</span>
+                            <span class="d-block small text-muted text-truncate">@{{ u.username }}</span>
+                        </span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="small text-muted mb-0">No students to show.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

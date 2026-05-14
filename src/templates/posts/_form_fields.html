@@ -27,10 +27,15 @@
         <textarea class="form-control" id="content" name="content" rows="6" required maxlength="20000">{{ values.content }}</textarea>
     </div>
     <div class="col-12">
-        <label for="image_path" class="form-label">Image path or URL</label>
+        <label for="image_path" class="form-label">Image URL (optional)</label>
         <input type="text" class="form-control" id="image_path" name="image_path" maxlength="500"
                value="{{ values.image_path }}"
-               placeholder="uploads/posts/photo.jpg or https://…">
-        <div class="form-text">Optional. Relative to <code>static</code> or a full <code>http(s)</code> URL.</div>
+               placeholder="https://… or uploads/posts/photo.jpg">
+        <div class="form-text">Optional remote URL or path under <code>static</code>. Prefer uploading files from the feed composer.</div>
+    </div>
+    <div class="col-12">
+        <label for="post-images" class="form-label">Upload images</label>
+        <input type="file" class="form-control" id="post-images" name="images" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
+        <div class="form-text">JPG, PNG, or WebP. New uploads replace the gallery when editing.</div>
     </div>
 </div>

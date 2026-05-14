@@ -1,4 +1,5 @@
 import math
+import os
 from collections import defaultdict
 
 from flask import (
@@ -15,6 +16,7 @@ from flask import (
 from utils.auth_helpers import login_required, safe_next_path
 from utils.comment_validation import validate_comment_content
 from utils.db import db_cursor
+from utils.post_upload import save_post_images
 from utils.post_validation import validate_post_form
 
 posts_bp = Blueprint("posts", __name__)
@@ -89,13 +91,221 @@ def _parse_school_filter(raw):
         return sid if row else None
 
 
-def _feed_url(page, school_id=None):
+def _feed_url(page, school_id=None, compose=None):
     args = {}
     if page and page > 1:
         args["page"] = page
     if school_id:
         args["school_id"] = school_id
+    if compose:
+        args["compose"] = 1
     return url_for("posts.feed", **args)
+
+
+def _posts_upload_dir():
+    return os.path.join(current_app.root_path, "static", "uploads", "posts")
+
+
+def _get_request_image_files():
+    files = request.files.getlist("images")
+    if not files or all(not (f and getattr(f, "filename", None)) for f in files):
+        files = request.files.getlist("images[]")
+    return [f for f in files if f and getattr(f, "filename", None)]
+
+
+def _attach_gallery_and_saved(cur, rows, viewer):
+    if not rows:
+        return
+    post_ids = [int(r["post_id"]) for r in rows]
+    placeholders = ",".join(["%s"] * len(post_ids))
+    images_map = defaultdict(list)
+    try:
+        cur.execute(
+            f"""
+            SELECT post_id, image_path
+            FROM post_images
+            WHERE post_id IN ({placeholders})
+            ORDER BY post_id, sort_order, image_id
+            """,
+            tuple(post_ids),
+        )
+        for row in cur.fetchall():
+            images_map[int(row["post_id"])].append(row["image_path"])
+    except Exception:
+        images_map = defaultdict(list)
+
+    saved_ids = set()
+    if viewer:
+        uid = int(viewer["user_id"])
+        try:
+            cur.execute(
+                f"""
+                SELECT post_id
+                FROM user_saved_posts
+                WHERE user_id = %s AND post_id IN ({placeholders})
+                """,
+                (uid, *post_ids),
+            )
+            saved_ids = {int(r["post_id"]) for r in cur.fetchall()}
+        except Exception:
+            saved_ids = set()
+
+    for r in rows:
+        pid = int(r["post_id"])
+        gal = list(images_map.get(pid, []))
+        if not gal and r.get("image_path"):
+            gal = [r["image_path"]]
+        r["gallery"] = gal
+        r["user_has_saved"] = pid in saved_ids if viewer else False
+
+
+def _insert_post_image_rows(cur, post_id, paths):
+    if not paths:
+        return
+    for i, p in enumerate(paths):
+        cur.execute(
+            """
+            INSERT INTO post_images (post_id, image_path, sort_order)
+            VALUES (%s, %s, %s)
+            """,
+            (post_id, p, i),
+        )
+
+
+def _fetch_post_images(cur, post_id):
+    try:
+        cur.execute(
+            """
+            SELECT image_path
+            FROM post_images
+            WHERE post_id = %s
+            ORDER BY sort_order, image_id
+            """,
+            (post_id,),
+        )
+        return [row["image_path"] for row in cur.fetchall()]
+    except Exception:
+        return []
+
+
+def _replace_post_images(cur, post_id, paths):
+    try:
+        cur.execute("DELETE FROM post_images WHERE post_id = %s", (post_id,))
+        _insert_post_image_rows(cur, post_id, paths)
+    except Exception:
+        pass
+
+
+def _fetch_feed_sidebar(viewer):
+    out = {
+        "trending_schools": [],
+        "upcoming_events": [],
+        "suggested_orgs": [],
+        "active_students": [],
+    }
+    sid = int(viewer["school_id"]) if viewer else None
+    with db_cursor() as pair:
+        if pair is None:
+            return out
+        _, cur = pair
+        try:
+            cur.execute(
+                """
+                SELECT s.school_id, s.name, COUNT(p.post_id) AS post_count
+                FROM schools s
+                INNER JOIN posts p ON p.school_id = s.school_id
+                WHERE s.status = 'active'
+                  AND p.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY s.school_id, s.name
+                ORDER BY post_count DESC
+                LIMIT 5
+                """
+            )
+            out["trending_schools"] = cur.fetchall()
+        except Exception:
+            pass
+        try:
+            if sid is not None:
+                cur.execute(
+                    """
+                    SELECT e.event_id, e.title, e.starts_at, s.name AS school_name
+                    FROM events e
+                    INNER JOIN schools s ON s.school_id = e.school_id
+                    WHERE e.event_status = 'published'
+                      AND e.starts_at > NOW()
+                      AND (e.visibility = 'public' OR e.school_id = %s)
+                    ORDER BY e.starts_at ASC
+                    LIMIT 5
+                    """,
+                    (sid,),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT e.event_id, e.title, e.starts_at, s.name AS school_name
+                    FROM events e
+                    INNER JOIN schools s ON s.school_id = e.school_id
+                    WHERE e.event_status = 'published'
+                      AND e.starts_at > NOW()
+                      AND e.visibility = 'public'
+                    ORDER BY e.starts_at ASC
+                    LIMIT 5
+                    """
+                )
+            out["upcoming_events"] = cur.fetchall()
+        except Exception:
+            pass
+        try:
+            if sid is not None:
+                cur.execute(
+                    """
+                    SELECT organization_id, name, slug
+                    FROM organizations
+                    WHERE status = 'active' AND school_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT 5
+                    """,
+                    (sid,),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT organization_id, name, slug
+                    FROM organizations
+                    WHERE status = 'active'
+                    ORDER BY created_at DESC
+                    LIMIT 5
+                    """
+                )
+            out["suggested_orgs"] = cur.fetchall()
+        except Exception:
+            pass
+        try:
+            if sid is not None:
+                cur.execute(
+                    """
+                    SELECT user_id, username, first_name, last_name, profile_image_url
+                    FROM users
+                    WHERE account_status = 'active' AND school_id = %s
+                    ORDER BY last_seen_at IS NULL, last_seen_at DESC
+                    LIMIT 8
+                    """,
+                    (sid,),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT user_id, username, first_name, last_name, profile_image_url
+                    FROM users
+                    WHERE account_status = 'active'
+                    ORDER BY last_seen_at IS NULL, last_seen_at DESC
+                    LIMIT 8
+                    """
+                )
+            out["active_students"] = cur.fetchall()
+        except Exception:
+            pass
+    return out
 
 
 def _fetch_post_if_visible(post_id, viewer):
@@ -174,7 +384,8 @@ def _enrich_posts_with_social(rows, viewer):
                 c.created_at,
                 u.username,
                 u.first_name,
-                u.last_name
+                u.last_name,
+                u.profile_image_url AS author_profile_image
             FROM comments c
             INNER JOIN users u ON u.user_id = c.user_id
             WHERE c.post_id IN ({placeholders})
@@ -196,7 +407,8 @@ def _enrich_posts_with_social(rows, viewer):
                 c.created_at,
                 u.username,
                 u.first_name,
-                u.last_name
+                u.last_name,
+                u.profile_image_url AS author_profile_image
             FROM comments c
             INNER JOIN users u ON u.user_id = c.user_id
             WHERE c.post_id IN ({placeholders})
@@ -237,7 +449,8 @@ def _redirect_feed():
             school_id = int(raw_school)
         except ValueError:
             school_id = None
-    return redirect(_feed_url(page, school_id))
+    compose = bool(request.form.get("redirect_compose"))
+    return redirect(_feed_url(page, school_id, compose=compose))
 
 
 def _can_delete_comment(comment_row):
@@ -459,6 +672,7 @@ def feed():
             u.username,
             u.first_name,
             u.last_name,
+            u.profile_image_url AS author_profile_image,
             s.name AS school_name
         FROM posts p
         INNER JOIN users u ON u.user_id = p.user_id
@@ -477,6 +691,9 @@ def feed():
                 schools_filter=_schools_for_filter(),
                 school_filter=school_filter,
                 pagination=None,
+                feed_url=_feed_url,
+                sidebar=_fetch_feed_sidebar(getattr(g, "current_user", None)),
+                open_composer=bool(request.args.get("compose")),
             )
 
         conn, cur = pair
@@ -488,8 +705,9 @@ def feed():
 
         cur.execute(list_sql, tuple(params + [per_page, offset]))
         rows = cur.fetchall()
+        viewer = getattr(g, "current_user", None)
+        _attach_gallery_and_saved(cur, rows, viewer)
 
-    viewer = getattr(g, "current_user", None)
     rows = _enrich_posts_with_social(rows, viewer)
 
     pagination = {
@@ -503,6 +721,8 @@ def feed():
         "next_num": page + 1 if page < pages else None,
     }
 
+    sidebar = _fetch_feed_sidebar(viewer)
+
     return render_template(
         "feed/index.html",
         posts=rows,
@@ -510,17 +730,9 @@ def feed():
         school_filter=school_filter,
         pagination=pagination,
         feed_url=_feed_url,
+        sidebar=sidebar,
+        open_composer=bool(request.args.get("compose")),
     )
-
-
-def _empty_post_values():
-    return {
-        "title": "",
-        "content": "",
-        "image_path": "",
-        "category": "general",
-        "privacy": "school_only",
-    }
 
 
 def _values_from_form():
@@ -546,30 +758,46 @@ def _values_from_post_row(row):
 @posts_bp.route("/posts/new", methods=["GET", "POST"])
 @login_required
 def create_post():
-    if request.method == "POST":
-        vals = _values_from_form()
-        img = _normalize_image_path(vals["image_path"])
-        errors = validate_post_form(
-            vals["title"],
-            vals["content"],
-            img or "",
-            vals["category"],
-            vals["privacy"],
-        )
-        if errors:
-            for e in errors:
-                flash(e, "danger")
-            return render_template("posts/create.html", values=vals)
+    if request.method == "GET":
+        return redirect(url_for("posts.feed", compose=1))
 
-        post_type = "image" if img else "text"
-        uid = int(g.current_user["user_id"])
-        sid = int(g.current_user["school_id"])
+    vals = _values_from_form()
+    upload_folder = _posts_upload_dir()
+    files = _get_request_image_files()
+    saved_paths, upload_errors = save_post_images(files, upload_folder)
+    for e in upload_errors:
+        flash(e, "danger")
+    img_url = _normalize_image_path(vals["image_path"])
+    img = saved_paths[0] if saved_paths else img_url
+    path_for_validation = "" if saved_paths else (img_url or "")
+    errors = validate_post_form(
+        vals["title"],
+        vals["content"],
+        path_for_validation,
+        vals["category"],
+        vals["privacy"],
+    )
+    if errors:
+        for e in errors:
+            flash(e, "danger")
+        for rel in saved_paths:
+            full = os.path.join(current_app.root_path, "static", rel)
+            try:
+                os.remove(full)
+            except OSError:
+                pass
+        return redirect(url_for("posts.feed", compose=1))
 
-        with db_cursor() as pair:
-            if pair is None:
-                flash("Cannot reach the database.", "danger")
-                return render_template("posts/create.html", values=vals)
-            conn, cur = pair
+    post_type = "image" if (img or saved_paths) else "text"
+    uid = int(g.current_user["user_id"])
+    sid = int(g.current_user["school_id"])
+
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return redirect(url_for("posts.feed", compose=1))
+        conn, cur = pair
+        try:
             cur.execute(
                 """
                 INSERT INTO posts (
@@ -590,12 +818,26 @@ def create_post():
                 ),
             )
             new_id = cur.lastrowid
+            if saved_paths:
+                _insert_post_image_rows(cur, int(new_id), saved_paths)
             conn.commit()
+        except Exception:
+            conn.rollback()
+            for rel in saved_paths:
+                full = os.path.join(current_app.root_path, "static", rel)
+                try:
+                    os.remove(full)
+                except OSError:
+                    pass
+            flash(
+                "Could not publish the post. If you uploaded images, ensure migration "
+                "005_post_images_saved_posts.sql has been applied.",
+                "danger",
+            )
+            return redirect(url_for("posts.feed", compose=1))
 
-        flash("Post published.", "success")
-        return redirect(url_for("posts.feed"))
-
-    return render_template("posts/create.html", values=_empty_post_values())
+    flash("Post published.", "success")
+    return redirect(url_for("posts.feed"))
 
 
 def _fetch_post(post_id):
@@ -633,51 +875,94 @@ def edit_post(post_id):
         flash("You cannot edit this post.", "danger")
         return redirect(url_for("posts.feed"))
 
+    gallery = []
+    with db_cursor() as pair:
+        if pair:
+            _, cur = pair
+            gallery = _fetch_post_images(cur, post_id)
+
     if request.method == "POST":
         vals = _values_from_form()
-        img = _normalize_image_path(vals["image_path"])
+        files = _get_request_image_files()
+        saved_paths, upload_errors = save_post_images(files, _posts_upload_dir())
+        for e in upload_errors:
+            flash(e, "danger")
+        img_url = _normalize_image_path(vals["image_path"])
+        if saved_paths:
+            img = saved_paths[0]
+        else:
+            img = img_url if img_url is not None else (gallery[0] if gallery else None)
+            if img is None and post.get("image_path"):
+                img = post.get("image_path")
+
+        path_for_validation = "" if saved_paths else (img_url or "")
         errors = validate_post_form(
             vals["title"],
             vals["content"],
-            img or "",
+            path_for_validation,
             vals["category"],
             vals["privacy"],
         )
         if errors:
             for e in errors:
                 flash(e, "danger")
-            return render_template("posts/edit.html", post=post, values=vals)
+            return render_template(
+                "posts/edit.html",
+                post=post,
+                values=vals,
+                gallery=gallery,
+            )
 
-        post_type = "image" if img else "text"
+        post_type = "image" if (img or saved_paths or gallery) else "text"
 
         with db_cursor() as pair:
             if pair is None:
                 flash("Cannot reach the database.", "danger")
-                return render_template("posts/edit.html", post=post, values=vals)
+                return render_template(
+                    "posts/edit.html",
+                    post=post,
+                    values=vals,
+                    gallery=gallery,
+                )
             conn, cur = pair
-            cur.execute(
-                """
-                UPDATE posts SET
-                    title = %s,
-                    content = %s,
-                    image_path = %s,
-                    category = %s,
-                    privacy = %s,
-                    post_type = %s,
-                    is_edited = 1
-                WHERE post_id = %s
-                """,
-                (
-                    vals["title"],
-                    vals["content"],
-                    img,
-                    vals["category"],
-                    vals["privacy"],
-                    post_type,
-                    post_id,
-                ),
-            )
-            conn.commit()
+            try:
+                cur.execute(
+                    """
+                    UPDATE posts SET
+                        title = %s,
+                        content = %s,
+                        image_path = %s,
+                        category = %s,
+                        privacy = %s,
+                        post_type = %s,
+                        is_edited = 1
+                    WHERE post_id = %s
+                    """,
+                    (
+                        vals["title"],
+                        vals["content"],
+                        img,
+                        vals["category"],
+                        vals["privacy"],
+                        post_type,
+                        post_id,
+                    ),
+                )
+                if saved_paths:
+                    _replace_post_images(cur, post_id, saved_paths)
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                flash(
+                    "Could not update images. Ensure migration 005_post_images_saved_posts.sql is applied.",
+                    "danger",
+                )
+                return render_template(
+                    "posts/edit.html",
+                    post=post,
+                    values=vals,
+                    gallery=gallery,
+                )
 
         flash("Post updated.", "success")
         return redirect(url_for("posts.feed"))
@@ -686,7 +971,58 @@ def edit_post(post_id):
         "posts/edit.html",
         post=post,
         values=_values_from_post_row(post),
+        gallery=gallery,
     )
+
+
+@posts_bp.route("/posts/<int:post_id>/save", methods=["POST"])
+@login_required
+def toggle_save_post(post_id):
+    post = _fetch_post_if_visible(post_id, g.current_user)
+    if not post:
+        flash("You cannot bookmark this post.", "danger")
+        return _redirect_feed()
+    uid = int(g.current_user["user_id"])
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return _redirect_feed()
+        conn, cur = pair
+        try:
+            cur.execute(
+                "SELECT 1 FROM user_saved_posts WHERE user_id = %s AND post_id = %s",
+                (uid, post_id),
+            )
+            if cur.fetchone():
+                cur.execute(
+                    "DELETE FROM user_saved_posts WHERE user_id = %s AND post_id = %s",
+                    (uid, post_id),
+                )
+                flash("Removed from saved posts.", "info")
+            else:
+                cur.execute(
+                    "INSERT INTO user_saved_posts (user_id, post_id) VALUES (%s, %s)",
+                    (uid, post_id),
+                )
+                flash("Post saved.", "success")
+            conn.commit()
+        except Exception:
+            flash(
+                "Saved posts require database migration 005_post_images_saved_posts.sql.",
+                "danger",
+            )
+    return _redirect_feed()
+
+
+@posts_bp.route("/posts/<int:post_id>/report", methods=["POST"])
+@login_required
+def report_post(post_id):
+    post = _fetch_post_if_visible(post_id, g.current_user)
+    if not post:
+        flash("You cannot report this post.", "danger")
+        return _redirect_feed()
+    flash("Thanks — your report has been recorded.", "info")
+    return _redirect_feed()
 
 
 @posts_bp.route("/posts/<int:post_id>/delete", methods=["POST"])

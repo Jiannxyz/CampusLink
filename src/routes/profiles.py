@@ -66,6 +66,36 @@ def fetch_profile_row(cur, username):
     return cur.fetchone()
 
 
+def fetch_profile_row_by_id(cur, user_id):
+    cur.execute(
+        """
+        SELECT
+            u.user_id,
+            u.school_id,
+            u.username,
+            u.email,
+            u.first_name,
+            u.last_name,
+            u.role,
+            u.account_status,
+            u.bio,
+            u.profile_image_url,
+            u.cover_image_path,
+            u.last_seen_at,
+            u.social_link_website,
+            u.social_link_twitter,
+            u.social_link_linkedin,
+            u.created_at,
+            s.name AS school_name
+        FROM users u
+        INNER JOIN schools s ON s.school_id = u.school_id
+        WHERE u.user_id = %s
+        """,
+        (user_id,),
+    )
+    return cur.fetchone()
+
+
 def fetch_profile_stats(cur, user_id):
     out = {"posts": 0, "followers": 0, "following": 0, "events_joined": 0}
     cur.execute(
@@ -226,11 +256,11 @@ def _fetch_saved_events(cur, user_id):
 @login_required
 def profile_me():
     u = g.current_user
-    return redirect(url_for("profiles.profile_view", username=u["username"]))
+    return redirect(url_for("profiles.profile_by_id", user_id=int(u["user_id"])))
 
 
-@profiles_bp.route("/u/<username>")
-def profile_view(username):
+@profiles_bp.route("/profile/<int:user_id>")
+def profile_by_id(user_id):
     tab = (request.args.get("tab") or "posts").strip().lower()
     if tab not in ("posts", "events", "organizations", "saved"):
         tab = "posts"
@@ -240,7 +270,7 @@ def profile_view(username):
             flash("Cannot reach the database.", "danger")
             return redirect(url_for("main.home"))
         _, cur = pair
-        profile = fetch_profile_row(cur, username)
+        profile = fetch_profile_row_by_id(cur, user_id)
         if not profile:
             flash("Profile not found.", "warning")
             return redirect(url_for("main.home"))
@@ -275,6 +305,24 @@ def profile_view(username):
         is_owner=is_owner,
         is_online=online,
     )
+
+
+@profiles_bp.route("/u/<username>")
+def profile_view(username):
+    with db_cursor() as pair:
+        if pair is None:
+            flash("Cannot reach the database.", "danger")
+            return redirect(url_for("main.home"))
+        _, cur = pair
+        profile = fetch_profile_row(cur, username)
+        if not profile:
+            flash("Profile not found.", "warning")
+            return redirect(url_for("main.home"))
+        uid = int(profile["user_id"])
+    tab = request.args.get("tab")
+    if tab:
+        return redirect(url_for("profiles.profile_by_id", user_id=uid, tab=tab))
+    return redirect(url_for("profiles.profile_by_id", user_id=uid))
 
 
 @profiles_bp.route("/profile/edit", methods=["GET", "POST"])
@@ -437,7 +485,7 @@ def profile_edit():
             conn.commit()
 
         flash("Profile updated.", "success")
-        return redirect(url_for("profiles.profile_view", username=username))
+        return redirect(url_for("profiles.profile_by_id", user_id=uid))
 
     with db_cursor() as pair:
         if pair is None:

@@ -796,3 +796,182 @@ button:focus-visible,
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ----- Feed (social layout) ----- */
+.feed-page .feed-layout {
+    max-width: 1320px;
+}
+
+.feed-col-main {
+    max-width: 640px;
+}
+
+@media (min-width: 1200px) {
+    .feed-col-main {
+        max-width: none;
+    }
+}
+
+.feed-rail-card,
+.feed-sidebar-section {
+    transition: box-shadow var(--cl-transition), transform var(--cl-transition);
+}
+
+.feed-rail-card:hover,
+.feed-sidebar-section:hover {
+    box-shadow: var(--cl-shadow-hover) !important;
+}
+
+.feed-rail-nav .nav-link {
+    color: var(--cl-text-muted);
+    font-weight: 600;
+}
+
+.feed-rail-nav .nav-link.active {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(124, 58, 237, 0.1));
+    color: var(--cl-primary);
+}
+
+.ls-wide {
+    letter-spacing: 0.06em;
+}
+
+.feed-composer-card .feed-composer-trigger {
+    color: inherit;
+}
+
+.feed-composer-card .feed-composer-trigger:hover {
+    background: rgba(79, 70, 229, 0.04);
+}
+
+.feed-composer-textarea {
+    resize: none;
+    min-height: 5rem;
+    border-radius: 0.75rem;
+}
+
+.feed-composer-select {
+    min-width: 8.5rem;
+    border-radius: 999px;
+}
+
+.feed-dropzone {
+    border: 2px dashed rgba(79, 70, 229, 0.25);
+    background: rgba(79, 70, 229, 0.03);
+    cursor: pointer;
+    transition: border-color var(--cl-transition), background var(--cl-transition), transform var(--cl-transition);
+}
+
+.feed-dropzone:hover,
+.feed-dropzone:focus-visible {
+    border-color: rgba(79, 70, 229, 0.45);
+    background: rgba(79, 70, 229, 0.06);
+}
+
+.feed-dropzone--active {
+    border-color: var(--cl-primary);
+    transform: scale(1.01);
+}
+
+.feed-preview-tile img {
+    display: block;
+}
+
+.feed-post-card {
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.feed-post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--cl-shadow-hover) !important;
+}
+
+.feed-avatar-link {
+    transition: transform 0.18s ease;
+}
+
+.feed-avatar-link:hover {
+    transform: scale(1.04);
+}
+
+.feed-hover-link:hover {
+    color: var(--cl-primary) !important;
+}
+
+.feed-icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--cl-transition), transform 0.15s ease;
+}
+
+.feed-icon-btn:hover {
+    background: rgba(79, 70, 229, 0.08) !important;
+}
+
+.feed-dropdown {
+    animation: feedFadeIn 0.2s ease;
+}
+
+.feed-social-btn {
+    transition: background var(--cl-transition), color var(--cl-transition), transform 0.12s ease;
+}
+
+.feed-social-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.feed-comments {
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.feed-replies {
+    border-color: rgba(79, 70, 229, 0.2) !important;
+}
+
+.feed-sidebar-link {
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--cl-transition), color var(--cl-transition);
+}
+
+.feed-sidebar-link:hover {
+    background: rgba(79, 70, 229, 0.06);
+    color: var(--cl-primary);
+}
+
+.feed-sidebar-student:hover {
+    background: rgba(79, 70, 229, 0.06);
+}
+
+@keyframes feedFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feed-card-animate {
+    animation: feedFadeIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+.feed-gallery-cell img {
+    object-fit: cover;
+}
+
+.feed-post-body {
+    font-size: 0.98rem;
+    line-height: 1.55;
+}
+
+.feed-reply-details summary {
+    cursor: pointer;
+}
+

@@ -22,7 +22,7 @@
                 </div>
             </div>
         </li>
-        <li><a class="dropdown-item rounded-2" href="{{ url_for('profiles.profile_view', username=current_user.username) }}"><i class="bi bi-person me-2 text-primary"></i>View profile</a></li>
+        <li><a class="dropdown-item rounded-2" href="{{ url_for('profiles.profile_by_id', user_id=current_user.user_id) }}"><i class="bi bi-person me-2 text-primary"></i>View profile</a></li>
         <li><a class="dropdown-item rounded-2" href="{{ url_for('profiles.profile_edit') }}"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit profile</a></li>
         <li><a class="dropdown-item rounded-2" href="{{ url_for('profiles.settings_page') }}"><i class="bi bi-gear me-2 text-primary"></i>Settings</a></li>
         <li><a class="dropdown-item rounded-2" href="{{ url_for('posts.feed', school_id=current_user.school_id) }}"><i class="bi bi-building me-2 text-primary"></i>My school</a></li>

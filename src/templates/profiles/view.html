@@ -88,17 +88,17 @@
     <div class="profile-tabs-wrap sticky-top mt-4 pt-2 pb-2 mb-3">
         <ul class="nav nav-pills flex-nowrap gap-1 overflow-auto profile-tabs">
             <li class="nav-item">
-                <a class="nav-link rounded-pill {% if tab == 'posts' %}active{% endif %}" href="{{ url_for('profiles.profile_view', username=profile.username, tab='posts') }}">Posts</a>
+                <a class="nav-link rounded-pill {% if tab == 'posts' %}active{% endif %}" href="{{ url_for('profiles.profile_by_id', user_id=profile.user_id, tab='posts') }}">Posts</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link rounded-pill {% if tab == 'events' %}active{% endif %}" href="{{ url_for('profiles.profile_view', username=profile.username, tab='events') }}">Events</a>
+                <a class="nav-link rounded-pill {% if tab == 'events' %}active{% endif %}" href="{{ url_for('profiles.profile_by_id', user_id=profile.user_id, tab='events') }}">Events</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link rounded-pill {% if tab == 'organizations' %}active{% endif %}" href="{{ url_for('profiles.profile_view', username=profile.username, tab='organizations') }}">Organizations</a>
+                <a class="nav-link rounded-pill {% if tab == 'organizations' %}active{% endif %}" href="{{ url_for('profiles.profile_by_id', user_id=profile.user_id, tab='organizations') }}">Organizations</a>
             </li>
             {% if is_owner %}
             <li class="nav-item">
-                <a class="nav-link rounded-pill {% if tab == 'saved' %}active{% endif %}" href="{{ url_for('profiles.profile_view', username=profile.username, tab='saved') }}">Saved</a>
+                <a class="nav-link rounded-pill {% if tab == 'saved' %}active{% endif %}" href="{{ url_for('profiles.profile_by_id', user_id=profile.user_id, tab='saved') }}">Saved</a>
             </li>
             {% endif %}
         </ul>

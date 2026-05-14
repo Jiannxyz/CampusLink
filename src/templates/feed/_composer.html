@@ -1,0 +1,85 @@
+{% import "macros/avatar.html" as av %}
+{% if current_user %}
+<div class="card border-0 shadow-sm feed-composer-card mb-4 overflow-hidden">
+    <div class="card-body p-0">
+        <button
+            class="btn btn-link text-decoration-none w-100 text-start py-3 px-3 d-flex align-items-center gap-3 feed-composer-trigger collapsed border-0 rounded-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#feedComposerCollapse"
+            aria-expanded="{{ 'true' if open_composer else 'false' }}"
+            aria-controls="feedComposerCollapse"
+        >
+            {{ av.avatar_circle(current_user, 44, "flex-shrink-0") }}
+            <span class="text-muted flex-grow-1 rounded-pill bg-light px-3 py-2 small">What’s happening on your campus?</span>
+            <span class="badge text-bg-primary rounded-pill d-none d-sm-inline">Compose</span>
+        </button>
+        <div id="feedComposerCollapse" class="collapse border-top {% if open_composer %}show{% endif %}">
+            <form
+                method="post"
+                action="{{ url_for('posts.create_post') }}"
+                enctype="multipart/form-data"
+                class="p-3 p-md-4 campus-form feed-composer-form"
+                id="feed-composer-form"
+            >
+                <input type="hidden" name="redirect_page" value="{{ pagination.page if pagination else 1 }}">
+                <input type="hidden" name="redirect_school_id" value="{{ school_filter if school_filter is not none else '' }}">
+                <input type="hidden" name="redirect_compose" value="{{ 1 if open_composer else '' }}" id="feed-redirect-compose">
+                <div class="d-flex gap-3 mb-3">
+                    <a href="{{ url_for('profiles.profile_by_id', user_id=current_user.user_id) }}" class="feed-avatar-link flex-shrink-0">
+                        {{ av.avatar_circle(current_user, 44, "") }}
+                    </a>
+                    <div class="flex-grow-1 min-w-0">
+                        <label class="form-label small text-muted mb-1" for="composer-title">Headline</label>
+                        <input type="text" class="form-control form-control-sm" id="composer-title" name="title" maxlength="200" placeholder="Topic or headline" required>
+                        <label class="form-label small text-muted mb-1 mt-2" for="composer-content">Post</label>
+                        <textarea class="form-control feed-composer-textarea" id="composer-content" name="content" rows="3" maxlength="20000" placeholder="What’s happening on your campus?" required></textarea>
+                    </div>
+                </div>
+                <div id="composer-preview" class="row g-2 mb-3 feed-preview-grid d-none"></div>
+                <div
+                    id="composer-dropzone"
+                    class="feed-dropzone rounded-3 mb-3 text-center py-4 px-3 text-muted small"
+                    tabindex="0"
+                    role="button"
+                    aria-label="Drop images to attach"
+                >
+                    <i class="bi bi-cloud-arrow-up fs-3 d-block mb-2 text-primary"></i>
+                    Drag and drop images here, or <span class="text-primary fw-semibold">browse</span>
+                    <input type="file" class="d-none" id="composer-files" name="images" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3 mb-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" id="composer-browse-btn">
+                        <i class="bi bi-image me-1"></i>Photos
+                    </button>
+                    <a href="{{ url_for('events.create_event') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <i class="bi bi-calendar-plus me-1"></i>Event
+                    </a>
+                    <div class="ms-md-auto d-flex flex-wrap gap-2 align-items-center">
+                        <select class="form-select form-select-sm feed-composer-select" name="privacy" aria-label="Audience">
+                            <option value="public">Public</option>
+                            <option value="school_only" selected>School only</option>
+                            <option value="followers_only">Followers</option>
+                            <option value="private">Only me</option>
+                        </select>
+                        <select class="form-select form-select-sm feed-composer-select" name="category" aria-label="Category">
+                            {% for c in ('general', 'academic', 'events', 'clubs', 'questions', 'marketplace') %}
+                            <option value="{{ c }}">{{ c.replace('_', ' ')|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 justify-content-between border-top pt-3">
+                    <span class="small text-muted feed-composer-hint d-none d-md-inline">JPG, PNG, or WebP · up to 8 files</span>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="small text-muted feed-upload-progress d-none" id="composer-progress" aria-live="polite"></span>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4" id="composer-submit" disabled>
+                            Post
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}

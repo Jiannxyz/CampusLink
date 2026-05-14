@@ -1,13 +1,14 @@
 {# Dark app sidebar — included from base.html; active states from request.endpoint #}
 {% set ep = request.endpoint %}
-{% set is_feed = ep in ('posts.feed', 'posts.create_post', 'posts.edit_post') %}
+{% set is_feed = ep == 'posts.feed' %}
+{% set is_admin = ep and ep.startswith('admin.') %}
 {% set is_events = ep and ep.startswith('events.') %}
 {% set is_search = ep == 'search.search' %}
 {% set is_home = ep == 'main.home' %}
 {% set is_about = ep == 'main.about' %}
 {% set is_dashboard = ep == 'main.dashboard' %}
 {% set is_schools = ep and ep.startswith('schools.') %}
-{% set is_profile = ep and ep.startswith('profiles.') %}
+{% set is_profile = ep in ('profiles.profile_view', 'profiles.profile_by_id', 'profiles.profile_edit', 'profiles.saved_events_page', 'profiles.settings_page') %}
 
 <div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none py-3">
     <span class="h6 mb-0 text-white fw-semibold">CampusLink</span>
@@ -42,7 +43,7 @@
         <a class="campus-sidenav-link{% if is_dashboard %} active{% endif %}" href="{{ url_for('main.dashboard') }}">
             <span class="campus-sidenav-icon" aria-hidden="true">☺</span> Dashboard
         </a>
-        <a class="campus-sidenav-link{% if is_profile %} active{% endif %}" href="{{ url_for('profiles.profile_view', username=current_user.username) }}">
+        <a class="campus-sidenav-link{% if is_profile %} active{% endif %}" href="{{ url_for('profiles.profile_by_id', user_id=current_user.user_id) }}">
             <span class="campus-sidenav-icon" aria-hidden="true">◎</span> Profile
         </a>
         {% if current_user.role == 'admin' %}

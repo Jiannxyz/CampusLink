@@ -8,7 +8,7 @@
     <div class="col-12 col-xl-10">
         <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url_for('profiles.profile_view', username=user_row.username) }}">Profile</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('profiles.profile_by_id', user_id=user_row.user_id) }}">Profile</a></li>
                 <li class="breadcrumb-item active">Edit</li>
             </ol>
         </nav>
@@ -125,7 +125,7 @@
 
                     <div class="d-flex flex-wrap gap-2">
                         <button type="submit" class="btn btn-primary px-4">Save changes</button>
-                        <a class="btn btn-outline-secondary" href="{{ url_for('profiles.profile_view', username=user_row.username) }}">Cancel</a>
+                        <a class="btn btn-outline-secondary" href="{{ url_for('profiles.profile_by_id', user_id=user_row.user_id) }}">Cancel</a>
                     </div>
                 </div>
             </div>
