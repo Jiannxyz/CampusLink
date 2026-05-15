@@ -18,6 +18,7 @@ from utils.auth_helpers import login_required, safe_next_path
 from utils.db import db_cursor
 from utils.profile_upload import delete_old_upload, save_user_image
 from utils.profile_validation import validate_profile_form
+from utils.static_paths import normalize_static_path
 
 profiles_bp = Blueprint("profiles", __name__)
 
@@ -35,6 +36,17 @@ def is_user_online(last_seen_at):
 
 def _static_dir():
     return os.path.join(current_app.root_path, "static")
+
+
+def _normalize_profile_media(row):
+    """Normalize image path fields on a user/profile dict for templates."""
+    if not row:
+        return row
+    if row.get("profile_image_url") is not None:
+        row["profile_image_url"] = normalize_static_path(row["profile_image_url"])
+    if row.get("cover_image_path") is not None:
+        row["cover_image_path"] = normalize_static_path(row["cover_image_path"])
+    return row
 
 
 def fetch_profile_row(cur, username):
@@ -432,6 +444,7 @@ def profile_by_id(user_id):
             return redirect(url_for("main.home"))
         _, cur = pair
         profile = fetch_profile_row_by_id(cur, user_id)
+        profile = _normalize_profile_media(profile)
         if not profile:
             flash("Profile not found.", "warning")
             return redirect(url_for("main.home"))
@@ -459,8 +472,12 @@ def profile_by_id(user_id):
             follow_state = fetch_follow_state(cur, int(viewer["user_id"]), pid_u)
             if int(viewer["user_id"]) != pid_u:
                 mutual_count = fetch_mutual_followers_count(cur, int(viewer["user_id"]), pid_u)
-        followers_preview = fetch_followers_preview(cur, pid_u)
-        following_preview = fetch_following_preview(cur, pid_u)
+        followers_preview = [
+            _normalize_profile_media(u) for u in fetch_followers_preview(cur, pid_u)
+        ]
+        following_preview = [
+            _normalize_profile_media(u) for u in fetch_following_preview(cur, pid_u)
+        ]
 
     online = is_user_online(profile.get("last_seen_at"))
 
@@ -606,16 +623,20 @@ def profile_edit():
             remove_cover = request.form.get("remove_cover_photo")
             if new_avatar:
                 delete_old_upload(static_dir, profile_path)
-                profile_path = new_avatar
+                profile_path = normalize_static_path(new_avatar)
             elif remove_avatar:
                 delete_old_upload(static_dir, profile_path)
                 profile_path = None
+            else:
+                profile_path = normalize_static_path(profile_path)
             if new_cover:
                 delete_old_upload(static_dir, cover_path)
-                cover_path = new_cover
+                cover_path = normalize_static_path(new_cover)
             elif remove_cover:
                 delete_old_upload(static_dir, cover_path)
                 cover_path = None
+            else:
+                cover_path = normalize_static_path(cover_path)
 
             pw_hash = row["password_hash"]
             if new_password:
@@ -678,7 +699,7 @@ def profile_edit():
             """,
             (uid,),
         )
-        user_row = cur.fetchone()
+        user_row = _normalize_profile_media(cur.fetchone())
         cur.execute(
             "SELECT school_id, name FROM schools WHERE status = 'active' ORDER BY name"
         )

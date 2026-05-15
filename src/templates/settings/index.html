@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/avatar.html" as av %}
 
 {% block title %}Settings | CampusLink{% endblock %}
 
@@ -17,7 +18,15 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="cl-card border-0 p-4 p-md-5 rounded-4">
+                <div class="cl-card border-0 p-4 p-md-5 rounded-4 mb-4">
+                    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                        {{ av.avatar_circle(current_user, 56, 'profile-avatar-ring flex-shrink-0') }}
+                        <div class="min-w-0">
+                            <div class="fw-bold text-truncate">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+                            <div class="text-muted small">@{{ current_user.username }}</div>
+                            <a href="{{ url_for('profiles.profile_edit') }}" class="small cl-link-muted">Edit profile &amp; photos</a>
+                        </div>
+                    </div>
                     <h2 class="h5 fw-bold mb-3">General</h2>
                     <p class="text-muted small mb-4">
                         Signed in as <strong>@{{ current_user.username }}</strong> with role <span class="badge text-bg-light border text-capitalize">{{ current_user.role }}</span>.

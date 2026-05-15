@@ -4,6 +4,7 @@ from flask import g, session
 
 from utils.auth_helpers import fetch_user_by_id
 from utils.db import db_cursor
+from utils.static_paths import normalize_static_path
 
 _LAST_SEEN_SESSION_KEY = "_profile_last_seen_bump"
 _LAST_SEEN_INTERVAL_SEC = 120
@@ -18,6 +19,14 @@ def init_session_middleware(app):
             return
         user = fetch_user_by_id(uid)
         if user and user.get("account_status") == "active":
+            if user.get("profile_image_url") is not None:
+                user["profile_image_url"] = normalize_static_path(
+                    user["profile_image_url"]
+                )
+            if user.get("cover_image_path") is not None:
+                user["cover_image_path"] = normalize_static_path(
+                    user["cover_image_path"]
+                )
             g.current_user = user
             _maybe_bump_last_seen(int(uid))
         else:
