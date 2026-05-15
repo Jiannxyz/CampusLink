@@ -1,17 +1,20 @@
 {# Reusable avatar: image URL or initials fallback. Expects user dict with first_name, last_name, profile_image_url #}
+{% import "macros/profile_media.html" as pm %}
 {% macro avatar_circle(user, size=40, extra_class='', lightbox=False) %}
 {% set img = user.profile_image_url if user else None %}
 {% set fn = (user.first_name or '?')[0] if user else '?' %}
 {% set ln = (user.last_name or '')[0] if user else '' %}
 <div class="cl-avatar {{ extra_class }}" style="--cl-avatar-size: {{ size }}px;">
     {% if img %}
-        {% if img.startswith('http') %}
-        <img src="{{ img }}" alt="" width="{{ size }}" height="{{ size }}" class="cl-avatar-img rounded-circle{% if lightbox %} cl-lightbox-img{% endif %}"{% if lightbox %} data-cl-lightbox-src="{{ img }}"{% endif %}>
-        {% else %}
-        <img src="{{ url_for('static', filename=img) }}" alt="" width="{{ size }}" height="{{ size }}" class="cl-avatar-img rounded-circle{% if lightbox %} cl-lightbox-img{% endif %}"{% if lightbox %} data-cl-lightbox-src="{{ url_for('static', filename=img) }}"{% endif %}>
-        {% endif %}
+        <img src="{{ pm.media_src(img) }}"
+             alt=""
+             width="{{ size }}"
+             height="{{ size }}"
+             class="cl-avatar-img rounded-circle cl-profile-media-fade{% if lightbox %} cl-lightbox-trigger{% endif %}"
+             decoding="async"
+             {% if lightbox %}data-cl-lightbox-src="{{ pm.media_src(img) }}" role="button" tabindex="0" aria-label="View profile photo"{% endif %}>
     {% else %}
-    <span class="cl-avatar-initials rounded-circle">{{ (fn ~ ln)|upper }}</span>
+    <span class="cl-avatar-initials rounded-circle" aria-hidden="true">{{ (fn ~ ln)|upper }}</span>
     {% endif %}
 </div>
 {% endmacro %}

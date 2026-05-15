@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 
 from config import Config
+from utils.static_paths import media_public_url, normalize_static_path
 from routes.admin import admin_bp
 from routes.auth import auth_bp
 from routes.events import events_bp
@@ -17,6 +18,14 @@ def create_app():
     app.config.from_object(Config)
 
     init_session_middleware(app)
+
+    @app.template_filter("normalize_static_path")
+    def _normalize_static_path_filter(raw):
+        return normalize_static_path(raw)
+
+    @app.template_global()
+    def media_url(path):
+        return media_public_url(path, url_for)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)

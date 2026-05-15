@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% import "macros/avatar.html" as av %}
+{% import "macros/profile_media.html" as pm %}
 
 {% block title %}Edit profile | CampusLink{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center profile-edit-page">
     <div class="col-12 col-xl-10">
         <nav aria-label="breadcrumb" class="cl-breadcrumb mb-3">
             <ol class="breadcrumb mb-0">
@@ -13,79 +14,97 @@
             </ol>
         </nav>
 
-        <h1 class="h3 fw-bold mb-4">Edit profile</h1>
+        <h1 class="h3 fw-bold mb-1">Edit profile</h1>
+        <p class="text-muted mb-4">Update your photo, cover, and account details.</p>
 
-        <form method="post" action="{{ url_for('profiles.profile_edit') }}" enctype="multipart/form-data" class="campus-form" id="profileEditForm">
+        <form method="post" action="{{ url_for('profiles.profile_edit') }}" enctype="multipart/form-data" class="campus-form profile-edit-form" id="profileEditForm">
             <div class="row g-4">
                 <div class="col-lg-4">
-                    <div class="cl-card border-0 p-4 mb-4">
+                    <div class="cl-card border-0 p-4 mb-4 profile-edit-photos-card">
                         <h2 class="h6 fw-bold mb-3">Photos</h2>
-                        <label class="form-label small text-muted">Profile photo</label>
-                        <p class="small text-muted mb-2">Click your photo or <strong>Choose image</strong> to upload.</p>
-                        <div class="profile-photo-picker mb-3">
+
+                        <label class="form-label small text-muted mb-1">Profile photo</label>
+                        <p class="small text-muted mb-3">Tap your avatar or choose an image below.</p>
+
+                        <div class="profile-photo-picker d-flex flex-column align-items-center mb-3">
                             <input type="file" class="visually-hidden" name="profile_photo" id="profilePhotoInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif">
-                            <label for="profilePhotoInput" class="profile-photo-picker-hit d-inline-block position-relative rounded-circle mb-0" tabindex="0" role="button" aria-label="Change profile photo">
-                                <span id="profileAvatarChrome" class="d-inline-block profile-photo-picker-avatar-wrap">
-                                    {{ av.avatar_circle(user_row, 96) }}
+                            <label for="profilePhotoInput" class="profile-photo-picker-hit mb-0" tabindex="0" role="button" aria-label="Change profile photo">
+                                <span class="profile-photo-frame" id="profilePhotoFrame">
+                                    <span id="profileAvatarChrome" class="profile-photo-frame-layer">
+                                        {{ av.avatar_circle(user_row, 96, 'profile-photo-frame-avatar') }}
+                                    </span>
+                                    <img id="profilePhotoPreview" class="profile-photo-frame-layer profile-photo-frame-img d-none" width="96" height="96" alt="New profile photo preview">
+                                    <span class="profile-photo-picker-overlay" aria-hidden="true"></span>
+                                    <span class="profile-photo-picker-badge" aria-hidden="true">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </span>
                                 </span>
-                                <img id="profilePhotoPreview" class="rounded-circle object-fit-cover d-none profile-photo-preview-img" width="96" height="96" alt="New profile photo preview">
-                                <span class="profile-photo-picker-badge rounded-pill shadow-sm"><i class="bi bi-camera-fill"></i></span>
                             </label>
+                            <div id="profilePhotoUploadStatus" class="profile-upload-status small text-muted mt-2 d-none" role="status" aria-live="polite"></div>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill mb-2" id="profilePhotoBrowseBtn">Choose image</button>
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill mb-2 w-100" id="profilePhotoBrowseBtn">
+                            <i class="bi bi-image me-1"></i>Choose image
+                        </button>
                         <div class="form-check small">
                             <input class="form-check-input" type="checkbox" value="1" name="remove_profile_photo" id="removeProfilePhoto">
                             <label class="form-check-label" for="removeProfilePhoto">Remove current photo</label>
                         </div>
-                        <hr class="my-3">
-                        <label class="form-label small text-muted">Cover image</label>
-                        <p class="small text-muted mb-2">Click the cover area to upload a wide image.</p>
+
+                        <hr class="my-4">
+
+                        <label class="form-label small text-muted mb-1">Cover image</label>
+                        <p class="small text-muted mb-3">Wide banner shown at the top of your profile.</p>
+
                         <input type="file" class="visually-hidden" name="cover_photo" id="coverPhotoInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif">
-                        <label for="coverPhotoInput" class="profile-cover-picker-hit d-block rounded-3 border mb-2 ratio ratio-21x9 overflow-hidden bg-light position-relative mb-0" id="coverPreviewWrap" role="button" tabindex="0" aria-label="Change cover image">
-                            {% set cp = user_row.get('cover_image_path') %}
-                            {% if cp %}
-                                {% if cp.startswith('http') %}
-                                <img src="{{ cp }}" alt="" class="object-fit-cover w-100 h-100 position-relative z-1" id="coverCurrent">
+                        <label for="coverPhotoInput" class="profile-cover-picker-hit d-block rounded-3 border overflow-hidden bg-light position-relative mb-2" id="coverPreviewWrap" role="button" tabindex="0" aria-label="Change cover image">
+                            <span class="profile-cover-picker-media ratio ratio-21x9 d-block">
+                                {% set cp = user_row.get('cover_image_path') %}
+                                {% if cp %}
+                                <img src="{{ pm.media_src(cp) }}" alt="" class="profile-cover-picker-img is-visible" id="coverCurrent">
                                 {% else %}
-                                <img src="{{ url_for('static', filename=cp) }}" alt="" class="object-fit-cover w-100 h-100 position-relative z-1" id="coverCurrent">
+                                <span class="profile-cover-picker-placeholder" id="coverPlaceholder">
+                                    <i class="bi bi-image d-block fs-4 mb-1 opacity-50"></i>
+                                    Click to add cover
+                                </span>
                                 {% endif %}
-                            {% else %}
-                            <div class="d-flex align-items-center justify-content-center text-muted small h-100 position-relative z-1" id="coverPlaceholder">Click to add cover</div>
-                            {% endif %}
-                            <img id="coverPhotoPreview" class="object-fit-cover w-100 h-100 position-absolute top-0 start-0 d-none z-2" alt="New cover preview">
-                            <span class="profile-cover-picker-veil position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center z-3 text-white small fw-semibold">
+                                <img id="coverPhotoPreview" class="profile-cover-picker-img d-none" alt="New cover preview">
+                            </span>
+                            <span class="profile-cover-picker-veil">
                                 <i class="bi bi-image me-2"></i>Change cover
                             </span>
                         </label>
+                        <div id="coverPhotoUploadStatus" class="profile-upload-status small text-muted mb-2 d-none" role="status" aria-live="polite"></div>
                         <div class="form-check small">
                             <input class="form-check-input" type="checkbox" value="1" name="remove_cover_photo" id="removeCoverPhoto">
                             <label class="form-check-label" for="removeCoverPhoto">Remove cover</label>
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-8">
-                    <div class="cl-card border-0 p-4 mb-4">
+                    <div class="cl-card border-0 p-4 p-md-5 mb-4 profile-edit-section-card">
                         <h2 class="h6 fw-bold mb-3">Basic info</h2>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label" for="first_name">First name</label>
-                                <input class="form-control" id="first_name" name="first_name" value="{{ user_row.first_name }}" required maxlength="80">
+                                <input class="form-control profile-edit-input" id="first_name" name="first_name" value="{{ user_row.first_name }}" required maxlength="80">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="last_name">Last name</label>
-                                <input class="form-control" id="last_name" name="last_name" value="{{ user_row.last_name }}" required maxlength="80">
+                                <input class="form-control profile-edit-input" id="last_name" name="last_name" value="{{ user_row.last_name }}" required maxlength="80">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="username">Username</label>
-                                <input class="form-control" id="username" name="username" value="{{ user_row.username }}" required pattern="[a-zA-Z0-9_]+" minlength="3" maxlength="50">
+                                <input class="form-control profile-edit-input" id="username" name="username" value="{{ user_row.username }}" required pattern="[a-zA-Z0-9_]+" minlength="3" maxlength="50">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="email">Email</label>
-                                <input class="form-control" type="email" id="email" name="email" value="{{ user_row.email }}" required maxlength="120">
+                                <input class="form-control profile-edit-input" type="email" id="email" name="email" value="{{ user_row.email }}" required maxlength="120">
                             </div>
                             <div class="col-12">
                                 <label class="form-label" for="school_id">School</label>
-                                <select class="form-select" id="school_id" name="school_id" required>
+                                <select class="form-select profile-edit-input" id="school_id" name="school_id" required>
                                     {% for s in schools %}
                                     <option value="{{ s.school_id }}" {% if s.school_id == user_row.school_id %}selected{% endif %}>{{ s.name }}</option>
                                     {% endfor %}
@@ -93,51 +112,54 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label" for="bio">Bio</label>
-                                <textarea class="form-control" id="bio" name="bio" rows="4" maxlength="300" placeholder="Tell your campus about you…">{{ user_row.bio or '' }}</textarea>
+                                <textarea class="form-control profile-edit-input" id="bio" name="bio" rows="4" maxlength="300" placeholder="Tell your campus about you…">{{ user_row.bio or '' }}</textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="cl-card border-0 p-4 mb-4">
+                    <div class="cl-card border-0 p-4 p-md-5 mb-4 profile-edit-section-card">
                         <h2 class="h6 fw-bold mb-3">Social links</h2>
                         <p class="small text-muted mb-3">Full URLs including <code>https://</code></p>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label" for="social_link_website">Website</label>
-                                <input class="form-control" id="social_link_website" name="social_link_website" value="{{ user_row.get('social_link_website', '') or '' }}" maxlength="300" placeholder="https://…">
+                                <input class="form-control profile-edit-input" id="social_link_website" name="social_link_website" value="{{ user_row.get('social_link_website', '') or '' }}" maxlength="300" placeholder="https://…">
                             </div>
                             <div class="col-12">
                                 <label class="form-label" for="social_link_twitter">Twitter / X</label>
-                                <input class="form-control" id="social_link_twitter" name="social_link_twitter" value="{{ user_row.get('social_link_twitter', '') or '' }}" maxlength="200" placeholder="https://x.com/…">
+                                <input class="form-control profile-edit-input" id="social_link_twitter" name="social_link_twitter" value="{{ user_row.get('social_link_twitter', '') or '' }}" maxlength="200" placeholder="https://x.com/…">
                             </div>
                             <div class="col-12">
                                 <label class="form-label" for="social_link_linkedin">LinkedIn</label>
-                                <input class="form-control" id="social_link_linkedin" name="social_link_linkedin" value="{{ user_row.get('social_link_linkedin', '') or '' }}" maxlength="300" placeholder="https://linkedin.com/in/…">
+                                <input class="form-control profile-edit-input" id="social_link_linkedin" name="social_link_linkedin" value="{{ user_row.get('social_link_linkedin', '') or '' }}" maxlength="300" placeholder="https://linkedin.com/in/…">
                             </div>
                         </div>
                     </div>
 
-                    <div class="cl-card border-0 p-4 mb-4">
+                    <div class="cl-card border-0 p-4 p-md-5 mb-4 profile-edit-section-card">
                         <h2 class="h6 fw-bold mb-3">Change password</h2>
                         <p class="small text-muted mb-3">Leave blank to keep your current password.</p>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label" for="current_password">Current password</label>
-                                <input class="form-control" type="password" id="current_password" name="current_password" autocomplete="current-password">
+                                <input class="form-control profile-edit-input" type="password" id="current_password" name="current_password" autocomplete="current-password">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="new_password">New password</label>
-                                <input class="form-control" type="password" id="new_password" name="new_password" autocomplete="new-password" minlength="8">
+                                <input class="form-control profile-edit-input" type="password" id="new_password" name="new_password" autocomplete="new-password" minlength="8">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="confirm_password">Confirm new password</label>
-                                <input class="form-control" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8">
+                                <input class="form-control profile-edit-input" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8">
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary px-4">Save changes</button>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <button type="submit" class="btn btn-primary px-4" id="profileEditSubmit">
+                            <span class="profile-edit-submit-label">Save changes</span>
+                            <span class="profile-edit-submit-spinner spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                        </button>
                         <a class="btn btn-outline-secondary" href="{{ url_for('profiles.profile_by_id', user_id=user_row.user_id) }}">Cancel</a>
                     </div>
                 </div>

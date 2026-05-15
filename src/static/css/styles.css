@@ -930,6 +930,28 @@ details summary:hover {
     box-shadow: var(--cl-shadow);
 }
 
+.profile-avatar-wrap {
+    z-index: 2;
+}
+
+.profile-avatar-wrap .cl-avatar {
+    display: block;
+}
+
+.cl-profile-media-fade {
+    opacity: 1;
+    animation: cl-profile-media-in 0.35s var(--cl-ease-out);
+}
+
+@keyframes cl-profile-media-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 /* ----------------------------------------------------------------------------- profile page */
 .profile-shell {
     max-width: 960px;
@@ -941,10 +963,16 @@ details summary:hover {
     margin-bottom: -4.5rem;
 }
 
-.profile-cover-img,
-.profile-cover-placeholder {
+.profile-cover-img {
+    display: block;
+    width: 100%;
     height: 200px;
     object-fit: cover;
+}
+
+.profile-cover-placeholder {
+    display: block;
+    height: 200px;
 }
 
 @media (min-width: 768px) {
@@ -962,6 +990,16 @@ details summary:hover {
     height: 50%;
     background: linear-gradient(to top, rgba(15, 23, 42, 0.45), transparent);
     pointer-events: none;
+    z-index: 1;
+}
+
+.cl-lightbox-trigger {
+    cursor: zoom-in;
+}
+
+.cl-lightbox-trigger:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.55);
+    outline-offset: 2px;
 }
 
 .profile-header-card {
@@ -1016,6 +1054,15 @@ button:focus-visible,
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .cl-profile-media-fade {
+        animation: none;
+    }
+
+    .profile-photo-frame-img,
+    .profile-cover-picker-img {
+        transition: none;
+    }
+
     *,
     *::before,
     *::after {
@@ -1332,39 +1379,108 @@ button:focus-visible,
 }
 
 /* Profile edit — photo pickers */
+.profile-edit-page .profile-edit-section-card,
+.profile-edit-page .profile-edit-photos-card {
+    box-shadow: var(--cl-shadow);
+}
+
+.profile-edit-input {
+    border-radius: 0.65rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-edit-input:focus {
+    border-color: rgba(79, 70, 229, 0.45);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.12);
+}
+
 .profile-photo-picker-hit {
     cursor: pointer;
     outline: none;
+    display: inline-block;
+    border-radius: 50%;
     transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .profile-photo-picker-hit:hover,
 .profile-photo-picker-hit:focus-visible {
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.28);
 }
 
-.profile-photo-preview-img {
-    position: absolute;
-    top: 0;
-    left: 0;
+.profile-photo-picker-hit:hover .profile-photo-picker-overlay,
+.profile-photo-picker-hit:focus-visible .profile-photo-picker-overlay {
+    opacity: 1;
+}
+
+.profile-photo-frame {
+    position: relative;
+    display: block;
     width: 96px;
     height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--cl-primary), var(--cl-accent));
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.22);
+}
+
+.profile-photo-frame-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-photo-frame-avatar.cl-avatar {
+    width: 96px;
+    height: 96px;
+    --cl-avatar-size: 96px;
+}
+
+.profile-photo-frame-img {
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
     pointer-events: none;
+}
+
+.profile-photo-frame-img.is-visible {
+    opacity: 1;
+}
+
+.profile-photo-picker-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.42);
+    color: #fff;
+    font-size: 1.35rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 3;
 }
 
 .profile-photo-picker-badge {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: 4px;
+    right: 4px;
     width: 2rem;
     height: 2rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.88);
     color: #fff;
     font-size: 0.85rem;
+    border-radius: 50%;
     pointer-events: none;
+    z-index: 4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .profile-cover-picker-hit {
@@ -1373,16 +1489,66 @@ button:focus-visible,
     transition: box-shadow 0.2s ease;
 }
 
+.profile-cover-picker-hit:hover,
+.profile-cover-picker-hit:focus-visible {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.22);
+}
+
+.profile-cover-picker-media {
+    position: relative;
+    background: linear-gradient(120deg, #312e81, #5b21b6, #4f46e5);
+}
+
+.profile-cover-picker-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.profile-cover-picker-img.is-visible {
+    opacity: 1;
+}
+
+.profile-cover-picker-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--cl-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 0.5rem;
+}
+
 .profile-cover-picker-veil {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     opacity: 0;
     background: rgba(15, 23, 42, 0.45);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
     transition: opacity 0.2s ease;
     pointer-events: none;
+    z-index: 2;
 }
 
 .profile-cover-picker-hit:hover .profile-cover-picker-veil,
 .profile-cover-picker-hit:focus-visible .profile-cover-picker-veil {
     opacity: 1;
+}
+
+.profile-upload-status {
+    min-height: 1.25rem;
 }
 
 /* About page */
@@ -1623,14 +1789,14 @@ html {
     min-height: 40vh;
 }
 
-.cl-lightbox-img {
+#clLightboxImg.cl-lightbox-img {
     max-height: min(88vh, 900px);
     opacity: 0;
     transform: scale(0.96);
     transition: opacity 0.35s var(--cl-ease-out), transform 0.35s var(--cl-ease-out);
 }
 
-.cl-lightbox-img.is-loaded {
+#clLightboxImg.cl-lightbox-img.is-loaded {
     opacity: 1;
     transform: scale(1);
 }

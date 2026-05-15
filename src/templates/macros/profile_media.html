@@ -1,0 +1,18 @@
+{# Profile cover banner and shared static media URL helper #}
+{% macro media_src(path) %}
+{%- if path -%}
+{%- if path.startswith('http') -%}{{ path }}{%- else -%}{{ url_for('static', filename=path) }}{%- endif -%}
+{%- endif -%}
+{% endmacro %}
+
+{% macro profile_cover(cover_path, lightbox=False) %}
+{% if cover_path %}
+<img src="{{ media_src(cover_path) }}"
+     alt=""
+     class="profile-cover-img w-100{% if lightbox %} cl-lightbox-trigger{% endif %}"
+     decoding="async"
+     {% if lightbox %}data-cl-lightbox-src="{{ media_src(cover_path) }}" role="button" tabindex="0" aria-label="View cover photo"{% endif %}>
+{% else %}
+<div class="profile-cover-placeholder w-100" aria-hidden="true"></div>
+{% endif %}
+{% endmacro %}
