@@ -455,4 +455,4 @@ After running `database/initial_data.sql`:
 
 ## License & academic use
 
-CampusLink is developed as an **academic project** for Information Management 1. Use and distribution should follow your institution’s guidelines.
+CampusLink is developed as an **academic project** for Information Management 1. Use and distribution should follow institution’s guidelines.
